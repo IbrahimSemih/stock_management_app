@@ -50,6 +50,8 @@ class AppConstants {
   static const String routeCategories = '/categories';
   static const String routeReports = '/reports';
   static const String routeSettings = '/settings';
+  static const String routeStockHistory = '/stock-history';
+  static const String routeProfile = '/profile';
 }
 
 class AppTheme {

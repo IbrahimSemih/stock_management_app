@@ -93,6 +93,23 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // Hesap
+          _SettingsSection(
+            title: 'Hesap',
+            children: [
+              _SettingsTile(
+                icon: AppIcons.user,
+                title: 'Profil',
+                subtitle: 'Hesap bilgilerinizi görüntüleyin',
+                onTap: () {
+                  Navigator.pushNamed(context, AppConstants.routeProfile);
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
           // Uygulama Bilgileri
           _SettingsSection(
             title: 'Uygulama',
@@ -116,7 +133,7 @@ class SettingsScreen extends StatelessWidget {
 
           // Çıkış
           _SettingsSection(
-            title: 'Hesap',
+            title: 'Güvenlik',
             children: [
               _SettingsTile(
                 icon: AppIcons.logout,

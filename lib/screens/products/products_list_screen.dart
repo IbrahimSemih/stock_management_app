@@ -307,7 +307,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                         color: isSelected
                             ? AppConstants.primaryColor
                             : Colors.grey[700],
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                       ),
                       avatar: isSelected
                           ? const Icon(
@@ -337,7 +339,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                       color: isSelected
                           ? AppConstants.primaryColor
                           : Colors.grey[700],
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     avatar: isSelected
                         ? const Icon(
@@ -384,9 +388,8 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                             _searchQuery.isNotEmpty
                                 ? 'Arama sonucu bulunamadı'
                                 : 'Henüz ürün eklenmemiş',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(

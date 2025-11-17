@@ -144,17 +144,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   AppConstants.appName,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.5,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _isLogin ? 'Hesabınıza giriş yapın' : 'Yeni hesap oluşturun',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -272,8 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : Text(
@@ -293,10 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Divider(
-                        thickness: 1,
-                        color: Colors.grey[300],
-                      ),
+                      child: Divider(thickness: 1, color: Colors.grey[300]),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -309,10 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Expanded(
-                      child: Divider(
-                        thickness: 1,
-                        color: Colors.grey[300],
-                      ),
+                      child: Divider(thickness: 1, color: Colors.grey[300]),
                     ),
                   ],
                 ),

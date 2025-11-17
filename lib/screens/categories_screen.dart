@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
+import '../providers/product_provider.dart';
 import '../models/category.dart';
-import '../services/db_helper.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
 
@@ -20,11 +20,7 @@ class CategoriesScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    AppIcons.categories,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(AppIcons.categories, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     'Henüz kategori eklenmemiş',
@@ -108,24 +104,18 @@ class _CategoryCard extends StatelessWidget {
 
   const _CategoryCard({required this.category});
 
-  Future<int> _getProductCount() async {
-    final db = DBHelper.instance;
-    final rows = await db.query(
-      'products',
-      where: 'category_id = ?',
-      whereArgs: [category.id],
-    );
-    return rows.length;
+  int _getProductCount(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
+    return productProvider.products
+        .where((product) => product.categoryId == category.id)
+        .length;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<int>(
-      future: _getProductCount(),
-      builder: (context, snapshot) {
-        final productCount = snapshot.data ?? 0;
+    final productCount = _getProductCount(context);
 
-        return Card(
+    return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
             leading: CircleAvatar(
@@ -170,8 +160,6 @@ class _CategoryCard extends StatelessWidget {
             ),
           ),
         );
-      },
-    );
   }
 
   void _showEditDialog(BuildContext context) {

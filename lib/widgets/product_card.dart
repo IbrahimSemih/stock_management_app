@@ -6,12 +6,16 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final bool isSelected;
+  final bool isSelectionMode;
 
   const ProductCard({
     super.key,
     required this.product,
     this.onTap,
     this.onLongPress,
+    this.isSelected = false,
+    this.isSelectionMode = false,
   });
 
   @override
@@ -31,15 +35,34 @@ class ProductCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: isCriticalStock
+              border: isSelected
                   ? Border.all(
-                      color: AppConstants.criticalStockColor.withOpacity(0.3),
-                      width: 1.5,
+                      color: AppConstants.primaryColor,
+                      width: 2,
                     )
+                  : isCriticalStock
+                      ? Border.all(
+                          color: AppConstants.criticalStockColor.withOpacity(0.3),
+                          width: 1.5,
+                        )
+                      : null,
+              color: isSelected
+                  ? AppConstants.primaryColor.withOpacity(0.05)
                   : null,
             ),
             child: Row(
               children: [
+                // Selection Checkbox
+                if (isSelectionMode)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) {
+                        onTap?.call();
+                      },
+                    ),
+                  ),
                 // Product Image
                 Hero(
                   tag: 'product_${product.id}',

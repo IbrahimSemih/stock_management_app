@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../models/product.dart';
+import '../../models/category.dart';
 import '../../utils/constants.dart';
 
 class ProductEditScreen extends StatefulWidget {
@@ -278,28 +279,52 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             const SizedBox(height: 16),
 
             // Category
-            DropdownButtonFormField<int>(
-              value: _selectedCategoryId,
-              decoration: const InputDecoration(
-                labelText: 'Kategori *',
-                prefixIcon: Icon(Icons.category),
-              ),
-              items: categoryProvider.categories.map((category) {
-                return DropdownMenuItem<int>(
-                  value: category.id,
-                  child: Text(category.name),
+            Builder(
+              builder: (context) {
+                final validCategories = categoryProvider.categories
+                    .where((category) => category.id != null)
+                    .fold<Map<int, Category>>(
+                      {},
+                      (map, category) {
+                        if (category.id != null && !map.containsKey(category.id)) {
+                          map[category.id!] = category;
+                        }
+                        return map;
+                      },
+                    )
+                    .values
+                    .where((category) => category.id != null)
+                    .toList();
+                
+                final validCategoryIds = validCategories.map((c) => c.id!).toSet();
+                final selectedValue = validCategoryIds.contains(_selectedCategoryId)
+                    ? _selectedCategoryId
+                    : null;
+                
+                return DropdownButtonFormField<int>(
+                  value: selectedValue,
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori *',
+                    prefixIcon: Icon(Icons.category),
+                  ),
+                  items: validCategories.map((category) {
+                    return DropdownMenuItem<int>(
+                      value: category.id!,
+                      child: Text(category.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategoryId = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Lütfen bir kategori seçin';
+                    }
+                    return null;
+                  },
                 );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedCategoryId = value;
-                });
-              },
-              validator: (value) {
-                if (value == null) {
-                  return 'Lütfen bir kategori seçin';
-                }
-                return null;
               },
             ),
             const SizedBox(height: 16),
