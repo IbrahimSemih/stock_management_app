@@ -4,6 +4,7 @@ import '../providers/category_provider.dart';
 import '../providers/product_provider.dart';
 import '../models/category.dart';
 import '../utils/app_icons.dart';
+import '../utils/constants.dart';
 import '../widgets/custom_appbar.dart';
 
 class CategoriesScreen extends StatelessWidget {
@@ -41,11 +42,26 @@ class CategoriesScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'categories_fab',
-        onPressed: () => _showAddCategoryDialog(context),
-        icon: const Icon(AppIcons.add),
-        label: const Text('Kategori Ekle'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'brands_fab',
+            onPressed: () {
+              Navigator.pushNamed(context, AppConstants.routeBrands);
+            },
+            icon: const Icon(Icons.branding_watermark),
+            label: const Text('Markalar'),
+            backgroundColor: AppConstants.secondaryColor,
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'categories_fab',
+            onPressed: () => _showAddCategoryDialog(context),
+            icon: const Icon(AppIcons.add),
+            label: const Text('Kategori Ekle'),
+          ),
+        ],
       ),
     );
   }

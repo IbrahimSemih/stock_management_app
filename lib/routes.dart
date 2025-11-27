@@ -10,6 +10,7 @@ import 'screens/stock_entry_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/stock_history_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/brands_screen.dart';
 import 'utils/constants.dart';
 import 'utils/animations.dart';
 
@@ -70,6 +71,11 @@ class AppRoutes {
       case AppConstants.routeCategories:
         return AppAnimations.slideRoute(
           const MainNavigation(initialIndex: 2),
+          settings: settings,
+        );
+      case AppConstants.routeBrands:
+        return AppAnimations.slideRoute(
+          const BrandsScreen(),
           settings: settings,
         );
       case AppConstants.routeReports:

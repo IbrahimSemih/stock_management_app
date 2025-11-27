@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -248,13 +249,36 @@ class ExportService {
     final directory = await getApplicationDocumentsDirectory();
     final dbPath = '${directory.path}/${AppConstants.dbName}';
     final sourceFile = File(backupPath);
+    final targetFile = File(dbPath);
 
     if (!await sourceFile.exists()) {
       throw Exception('Yedek dosyası bulunamadı');
     }
 
-    // Close existing database connection
-    // Note: This is a simplified approach. In production, you should properly close DB connections.
+    // Veritabanı bağlantısını kapat
+    try {
+      await _db.closeDatabase();
+    } catch (e) {
+      debugPrint('Veritabanı kapatma hatası (devam ediliyor): $e');
+    }
+
+    // Mevcut veritabanı dosyasını sil (varsa)
+    if (await targetFile.exists()) {
+      try {
+        await targetFile.delete();
+      } catch (e) {
+        debugPrint('Mevcut veritabanı silme hatası: $e');
+        // Dosya kullanımda olabilir, tekrar dene
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (await targetFile.exists()) {
+          await targetFile.delete();
+        }
+      }
+    }
+
+    // Yedek dosyasını kopyala
     await sourceFile.copy(dbPath);
+    
+    debugPrint('Veritabanı geri yüklendi: $dbPath');
   }
 }

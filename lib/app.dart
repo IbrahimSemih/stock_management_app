@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/category_provider.dart';
+import 'providers/brand_provider.dart';
+import 'providers/price_history_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/stock_history_provider.dart';
@@ -37,7 +39,18 @@ class SmartStockApp extends StatelessWidget {
             return provider;
           },
         ),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = BrandProvider();
+            // Async işlemi başlat, hata oluşursa yakala
+            provider.loadBrands().catchError((e) {
+              debugPrint('Error loading brands: $e');
+            });
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => StockHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => PriceHistoryProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) {

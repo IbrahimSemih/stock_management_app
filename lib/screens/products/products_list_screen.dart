@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/brand_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/app_icons.dart';
 import '../../models/product.dart';
@@ -21,6 +22,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   int? _selectedCategoryId;
+  int? _selectedBrandId;
   bool _isGridView = false;
 
   @override
@@ -70,6 +72,13 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
     if (_selectedCategoryId != null) {
       products = products.where((product) {
         return product.categoryId == _selectedCategoryId;
+      }).toList();
+    }
+
+    // Brand filter
+    if (_selectedBrandId != null) {
+      products = products.where((product) {
+        return product.brandId == _selectedBrandId;
       }).toList();
     }
 
@@ -215,6 +224,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
+    final brandProvider = context.watch<BrandProvider>();
     final filteredProducts = _getFilteredProducts();
 
     return Scaffold(
@@ -350,6 +360,69 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                             color: AppConstants.primaryColor,
                           )
                         : null,
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Brand Filter
+          SizedBox(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: brandProvider.brands.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  final isSelected = _selectedBrandId == null;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: const Text('Tüm Markalar'),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedBrandId = null;
+                        });
+                      },
+                      selectedColor: AppConstants.secondaryColor.withOpacity(0.2),
+                      checkmarkColor: AppConstants.secondaryColor,
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? AppConstants.secondaryColor
+                            : Colors.grey[700],
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  );
+                }
+                final brand = brandProvider.brands[index - 1];
+                final isSelected = _selectedBrandId == brand.id;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(brand.name),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedBrandId = selected ? brand.id : null;
+                      });
+                    },
+                    selectedColor: AppConstants.secondaryColor.withOpacity(0.2),
+                    checkmarkColor: AppConstants.secondaryColor,
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? AppConstants.secondaryColor
+                          : Colors.grey[700],
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
                   ),
                 );
               },

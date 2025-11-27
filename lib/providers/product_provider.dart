@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/stock_history.dart';
@@ -21,30 +22,72 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<int> addProduct(Product product) async {
-    final id = await _db.insert('products', product.toMap());
-    // create initial stock history if stock > 0
-    if (product.stock > 0) {
-      final hist = StockHistory(
-        productId: id,
-        type: 'IN',
-        amount: product.stock,
-        date: product.createdAt,
-        note: 'Initial stock',
-      );
-      await _db.insert('stock_history', hist.toMap());
+    try {
+      final productMap = product.toMap();
+      
+      // Veritabanındaki kolonları kontrol et ve sadece mevcut kolonları kullan
+      final db = await _db.database;
+      final tableInfo = await db.rawQuery('PRAGMA table_info(products)');
+      final columnNames = tableInfo.map((row) => row['name'] as String).toSet();
+      
+      // Sadece mevcut kolonları içeren bir map oluştur
+      final safeMap = <String, dynamic>{};
+      for (var entry in productMap.entries) {
+        if (columnNames.contains(entry.key)) {
+          safeMap[entry.key] = entry.value;
+        }
+      }
+      
+      final id = await _db.insert('products', safeMap);
+      // create initial stock history if stock > 0
+      if (product.stock > 0) {
+        final hist = StockHistory(
+          productId: id,
+          type: 'IN',
+          amount: product.stock,
+          date: product.createdAt,
+          note: 'Initial stock',
+        );
+        await _db.insert('stock_history', hist.toMap());
+      }
+      await loadAllProducts();
+      return id;
+    } catch (e) {
+      debugPrint('addProduct error: $e');
+      rethrow;
     }
-    await loadAllProducts();
-    return id;
   }
 
   Future<int> updateProduct(Product product) async {
-    final updatedAt = DateTime.now().toIso8601String();
-    product.updatedAt = updatedAt;
-    final res = await _db.update('products', product.toMap(), 'id = ?', [
-      product.id,
-    ]);
-    await loadAllProducts();
-    return res;
+    try {
+      final updatedAt = DateTime.now().toIso8601String();
+      product.updatedAt = updatedAt;
+      
+      final productMap = product.toMap();
+      
+      // Veritabanındaki kolonları kontrol et ve sadece mevcut kolonları kullan
+      final db = await _db.database;
+      final tableInfo = await db.rawQuery('PRAGMA table_info(products)');
+      final columnNames = tableInfo.map((row) => row['name'] as String).toSet();
+      
+      // Sadece mevcut kolonları içeren bir map oluştur
+      final safeMap = <String, dynamic>{};
+      for (var entry in productMap.entries) {
+        if (entry.key == 'id') continue; // id'yi dahil etme
+        if (columnNames.contains(entry.key)) {
+          safeMap[entry.key] = entry.value;
+        }
+      }
+      
+      final res = await _db.update('products', safeMap, 'id = ?', [
+        product.id,
+      ]);
+      await loadAllProducts();
+      return res;
+    } catch (e) {
+      debugPrint('updateProduct error: $e');
+      rethrow;
+    }
   }
 
   Future<int> deleteProduct(int id) async {

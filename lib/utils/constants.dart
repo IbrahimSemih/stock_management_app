@@ -48,6 +48,7 @@ class AppConstants {
   static const String routeBarcodeScan = '/barcode-scan';
   static const String routeStockEntry = '/stock-entry';
   static const String routeCategories = '/categories';
+  static const String routeBrands = '/brands';
   static const String routeReports = '/reports';
   static const String routeSettings = '/settings';
   static const String routeStockHistory = '/stock-history';

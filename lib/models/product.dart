@@ -5,6 +5,8 @@ class Product {
   String name;
   String? barcode;
   int categoryId;
+  int? brandId;
+  String? model;
   int stock;
   double purchasePrice;
   double salePrice;
@@ -18,6 +20,8 @@ class Product {
     required this.name,
     this.barcode,
     required this.categoryId,
+    this.brandId,
+    this.model,
     required this.stock,
     required this.purchasePrice,
     required this.salePrice,
@@ -32,6 +36,8 @@ class Product {
     name: map['name'] as String,
     barcode: map['barcode'] as String?,
     categoryId: map['category_id'] as int,
+    brandId: map['brand_id'] as int?,
+    model: map['model'] as String?,
     stock: map['stock'] as int,
     purchasePrice: (map['purchase_price'] as num).toDouble(),
     salePrice: (map['sale_price'] as num).toDouble(),
@@ -46,6 +52,8 @@ class Product {
     'name': name,
     'barcode': barcode,
     'category_id': categoryId,
+    'brand_id': brandId,
+    'model': model,
     'stock': stock,
     'purchase_price': purchasePrice,
     'sale_price': salePrice,

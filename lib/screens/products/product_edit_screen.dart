@@ -4,8 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/brand_provider.dart';
+import '../../providers/price_history_provider.dart';
 import '../../models/product.dart';
 import '../../models/category.dart';
+import '../../models/price_history.dart';
 import '../../utils/constants.dart';
 
 class ProductEditScreen extends StatefulWidget {
@@ -26,8 +29,10 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   final _purchasePriceController = TextEditingController();
   final _salePriceController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _modelController = TextEditingController();
 
   int? _selectedCategoryId;
+  int? _selectedBrandId;
   String? _imagePath;
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
@@ -58,6 +63,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         _salePriceController.text = product.salePrice.toString();
         _descriptionController.text = product.description ?? '';
         _selectedCategoryId = product.categoryId;
+        _selectedBrandId = product.brandId;
+        _modelController.text = product.model ?? '';
         _imagePath = product.imagePath;
       });
     }
@@ -71,6 +78,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         _selectedCategoryId = categoryProvider.categories.first.id;
       });
     }
+    final brandProvider = context.read<BrandProvider>();
+    await brandProvider.loadBrands();
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -114,49 +123,104 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
 
     setState(() => _isLoading = true);
 
-    final now = DateTime.now().toIso8601String();
-    final product = Product(
-      id: widget.productId,
-      name: _nameController.text.trim(),
-      barcode: _barcodeController.text.trim().isEmpty
-          ? null
-          : _barcodeController.text.trim(),
-      categoryId: _selectedCategoryId!,
-      stock: int.tryParse(_stockController.text) ?? 0,
-      purchasePrice: double.tryParse(_purchasePriceController.text) ?? 0.0,
-      salePrice: double.tryParse(_salePriceController.text) ?? 0.0,
-      imagePath: _imagePath,
-      description: _descriptionController.text.trim().isEmpty
-          ? null
-          : _descriptionController.text.trim(),
-      createdAt: widget.productId != null
-          ? (context
-                    .read<ProductProvider>()
-                    .findById(widget.productId!)
-                    ?.createdAt ??
-                now)
-          : now,
-      updatedAt: now,
-    );
-
-    final productProvider = context.read<ProductProvider>();
-    if (widget.productId != null) {
-      await productProvider.updateProduct(product);
-    } else {
-      await productProvider.addProduct(product);
-    }
-
-    setState(() => _isLoading = false);
-
-    if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.productId != null ? 'Ürün güncellendi' : 'Ürün eklendi',
-          ),
-        ),
+    try {
+      final now = DateTime.now().toIso8601String();
+      
+      // Fiyat değişim geçmişini kontrol et
+      double? oldPurchasePrice;
+      double? oldSalePrice;
+      if (widget.productId != null) {
+        final oldProduct = context.read<ProductProvider>().findById(widget.productId!);
+        if (oldProduct != null) {
+          oldPurchasePrice = oldProduct.purchasePrice;
+          oldSalePrice = oldProduct.salePrice;
+        }
+      }
+      
+      final newPurchasePrice = double.tryParse(_purchasePriceController.text) ?? 0.0;
+      final newSalePrice = double.tryParse(_salePriceController.text) ?? 0.0;
+      
+      final product = Product(
+        id: widget.productId,
+        name: _nameController.text.trim(),
+        barcode: _barcodeController.text.trim().isEmpty
+            ? null
+            : _barcodeController.text.trim(),
+        categoryId: _selectedCategoryId!,
+        brandId: _selectedBrandId,
+        model: _modelController.text.trim().isEmpty
+            ? null
+            : _modelController.text.trim(),
+        stock: int.tryParse(_stockController.text) ?? 0,
+        purchasePrice: newPurchasePrice,
+        salePrice: newSalePrice,
+        imagePath: _imagePath,
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
+        createdAt: widget.productId != null
+            ? (context
+                      .read<ProductProvider>()
+                      .findById(widget.productId!)
+                      ?.createdAt ??
+                  now)
+            : now,
+        updatedAt: now,
       );
+
+      final productProvider = context.read<ProductProvider>();
+      if (widget.productId != null) {
+        await productProvider.updateProduct(product);
+        
+        // Fiyat değişim geçmişini kaydet
+        if (oldPurchasePrice != null && oldSalePrice != null) {
+          if (oldPurchasePrice != newPurchasePrice || oldSalePrice != newSalePrice) {
+            try {
+              final priceHistory = PriceHistory(
+                productId: widget.productId!,
+                oldPurchasePrice: oldPurchasePrice,
+                newPurchasePrice: newPurchasePrice,
+                oldSalePrice: oldSalePrice,
+                newSalePrice: newSalePrice,
+                date: now,
+              );
+              await context.read<PriceHistoryProvider>().addPriceHistory(priceHistory);
+            } catch (e) {
+              debugPrint('Fiyat geçmişi kaydedilemedi: $e');
+              // Fiyat geçmişi kaydedilemese bile devam et
+            }
+          }
+        }
+      } else {
+        await productProvider.addProduct(product);
+      }
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.productId != null ? 'Ürün güncellendi' : 'Ürün eklendi',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Ürün kaydetme hatası: $e');
+      debugPrint('Stack trace: $stackTrace');
+      
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -168,12 +232,14 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     _purchasePriceController.dispose();
     _salePriceController.dispose();
     _descriptionController.dispose();
+    _modelController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
+    final brandProvider = context.watch<BrandProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -326,6 +392,51 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                   },
                 );
               },
+            ),
+            const SizedBox(height: 16),
+
+            // Brand
+            Builder(
+              builder: (context) {
+                final validBrands = brandProvider.brands
+                    .where((brand) => brand.id != null)
+                    .toList();
+                
+                return DropdownButtonFormField<int>(
+                  value: _selectedBrandId,
+                  decoration: const InputDecoration(
+                    labelText: 'Marka',
+                    prefixIcon: Icon(Icons.branding_watermark),
+                  ),
+                  items: [
+                    const DropdownMenuItem<int>(
+                      value: null,
+                      child: Text('Marka Seçiniz'),
+                    ),
+                    ...validBrands.map((brand) {
+                      return DropdownMenuItem<int>(
+                        value: brand.id!,
+                        child: Text(brand.name),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedBrandId = value;
+                    });
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Model
+            TextFormField(
+              controller: _modelController,
+              decoration: const InputDecoration(
+                labelText: 'Model',
+                prefixIcon: Icon(Icons.model_training),
+              ),
             ),
             const SizedBox(height: 16),
 
