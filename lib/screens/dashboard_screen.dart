@@ -1,35 +1,169 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
-import '../widgets/custom_appbar.dart';
+import '../widgets/premium_widgets.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Dashboard',
-        actions: [
-          IconButton(
-            icon: const Icon(AppIcons.notifications),
-            onPressed: () {},
-            tooltip: 'Bildirimler',
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Scaffold(
+        body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await context.read<ProductProvider>().loadAllProducts();
+            await context.read<CategoryProvider>().loadCategories();
+          },
+          color: AppConstants.primaryColor,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // Premium App Bar
+              SliverToBoxAdapter(child: _buildHeader(context)),
+
+              // Content
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Welcome Banner
+                    _buildWelcomeBanner(context),
+                    const SizedBox(height: 28),
+
+                    // Stats Section
+                    _buildStatsSection(context),
+                    const SizedBox(height: 28),
+
+                    // Quick Actions
+                    _buildQuickActionsSection(context),
+                    const SizedBox(height: 28),
+
+                    // Recent Products
+                    _buildRecentProductsSection(context),
+                    const SizedBox(height: 28),
+
+                    // Critical Stock
+                    _buildCriticalStockSection(context),
+                  ]),
+                ),
+              ),
+            ],
           ),
+        ),
+        ),
+        drawer: _buildPremiumDrawer(context),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      child: Row(
+        children: [
+          // Menu Button
+          Builder(
+            builder: (context) => PremiumIconButton(
+              icon: Icons.menu_rounded,
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Title
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Dashboard',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppConstants.neutralDark,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  _getGreeting(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Notifications
+          PremiumIconButton(icon: AppIcons.notifications, onPressed: () {}),
+          const SizedBox(width: 12),
+
+          // Settings Menu
           PopupMenuButton(
-            icon: const Icon(AppIcons.more),
+            icon: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                AppIcons.more,
+                color: isDark
+                    ? AppConstants.primaryLight
+                    : AppConstants.primaryColor,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            offset: const Offset(0, 56),
             itemBuilder: (context) => [
               PopupMenuItem(
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(AppIcons.settings, size: 20),
-                    SizedBox(width: 12),
-                    Text('Ayarlar'),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppConstants.primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        AppIcons.settings,
+                        size: 18,
+                        color: AppConstants.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Ayarlar',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ],
                 ),
                 onTap: () {
@@ -37,11 +171,28 @@ class DashboardScreen extends StatelessWidget {
                 },
               ),
               PopupMenuItem(
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(AppIcons.logout, size: 20, color: Colors.red),
-                    SizedBox(width: 12),
-                    Text('Çıkış Yap', style: TextStyle(color: Colors.red)),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppConstants.errorColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        AppIcons.logout,
+                        size: 18,
+                        color: AppConstants.errorColor,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Çıkış Yap',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppConstants.errorColor,
+                      ),
+                    ),
                   ],
                 ),
                 onTap: () async {
@@ -58,79 +209,129 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await context.read<ProductProvider>().loadAllProducts();
-          await context.read<CategoryProvider>().loadCategories();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Section
-              _buildWelcomeSection(context),
-              const SizedBox(height: 24),
-
-              // Stats Cards
-              _buildStatsSection(context),
-              const SizedBox(height: 24),
-
-              // Quick Actions
-              _buildQuickActionsSection(context),
-              const SizedBox(height: 24),
-
-              // Recent Products
-              _buildRecentProductsSection(context),
-              const SizedBox(height: 24),
-
-              // Critical Stock Products
-              _buildCriticalStockSection(context),
-            ],
-          ),
-        ),
-      ),
-      drawer: _buildDrawer(context),
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context) {
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Günaydın! ☀️';
+    if (hour < 18) return 'İyi günler! 🌤️';
+    return 'İyi akşamlar! 🌙';
+  }
+
+  Widget _buildWelcomeBanner(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 123, 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppConstants.primaryColor, AppConstants.secondaryColor],
+          colors: [Color(0xFF2563EB), Color(0xFF7C3AED), Color(0xFF9333EA)],
+          stops: [0.0, 0.5, 1.0],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppConstants.primaryColor.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: AppConstants.primaryColor.withOpacity(0.4),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+            spreadRadius: -4,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          const Text(
-            'Hoş Geldiniz! 👋',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          // Background Pattern
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Stok yönetiminizi kolaylaştıralım',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+          Positioned(
+            right: 40,
+            bottom: -30,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
             ),
+          ),
+
+          // Content
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.rocket_launch_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.auto_awesome, color: Colors.amber, size: 16),
+                        SizedBox(width: 6),
+                        Text(
+                          'Pro',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Hoş Geldiniz! 👋',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Stok yönetiminizi akıllıca yönetin',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white.withOpacity(0.9),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -150,50 +351,156 @@ class DashboardScreen extends StatelessWidget {
         .where((p) => p.stock <= AppConstants.criticalStockThreshold)
         .length;
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: _StatCard(
-            icon: AppIcons.products,
-            title: 'Toplam Ürün',
-            value: totalProducts.toString(),
-            color: AppConstants.primaryColor,
-            gradient: LinearGradient(
-              colors: [
-                AppConstants.primaryColor.withOpacity(0.8),
-                AppConstants.primaryColor,
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: AppIcons.faShoppingCart,
-            title: 'Toplam Stok',
-            value: totalStock.toString(),
-            color: AppConstants.secondaryColor,
-            gradient: LinearGradient(
-              colors: [
-                AppConstants.secondaryColor.withOpacity(0.8),
-                AppConstants.secondaryColor,
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: AppIcons.criticalStock,
-            title: 'Kritik Stok',
-            value: criticalProducts.toString(),
-            color: AppConstants.criticalStockColor,
-            gradient: LinearGradient(
-              colors: [
-                AppConstants.criticalStockColor.withOpacity(0.8),
-                AppConstants.criticalStockColor,
-              ],
-            ),
+        const PremiumSectionHeader(title: 'Genel Bakış'),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 160,
+          child: Row(
+            children: [
+              Expanded(
+                child: PremiumStatCard(
+                  icon: AppIcons.products,
+                  title: 'Toplam Ürün',
+                  value: totalProducts.toString(),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF10B981), Color(0xFF059669)],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppConstants.successColor.withOpacity(0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  AppIcons.faShoppingCart,
+                                  color: Colors.white.withOpacity(0.9),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Stok',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              totalStock.toString(),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: criticalProducts > 0
+                                ? [
+                                    const Color(0xFFEF4444),
+                                    const Color(0xFFDC2626),
+                                  ]
+                                : [
+                                    const Color(0xFF6B7280),
+                                    const Color(0xFF4B5563),
+                                  ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (criticalProducts > 0
+                                          ? AppConstants.errorColor
+                                          : Colors.grey)
+                                      .withOpacity(0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  AppIcons.criticalStock,
+                                  color: Colors.white.withOpacity(0.9),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Kritik',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              criticalProducts.toString(),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -204,12 +511,7 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Hızlı İşlemler',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        const PremiumSectionHeader(title: 'Hızlı İşlemler'),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -217,9 +519,9 @@ class DashboardScreen extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 1.4,
+          childAspectRatio: 1.15,
           children: [
-            _QuickActionCard(
+            PremiumActionCard(
               icon: AppIcons.addProduct,
               title: 'Ürün Ekle',
               subtitle: 'Yeni ürün ekle',
@@ -232,7 +534,7 @@ class DashboardScreen extends StatelessWidget {
                 );
               },
             ),
-            _QuickActionCard(
+            PremiumActionCard(
               icon: AppIcons.stockIn,
               title: 'Stok Giriş',
               subtitle: 'Stok artır',
@@ -245,7 +547,7 @@ class DashboardScreen extends StatelessWidget {
                 );
               },
             ),
-            _QuickActionCard(
+            PremiumActionCard(
               icon: AppIcons.stockOut,
               title: 'Stok Çıkış',
               subtitle: 'Stok azalt',
@@ -258,7 +560,7 @@ class DashboardScreen extends StatelessWidget {
                 );
               },
             ),
-            _QuickActionCard(
+            PremiumActionCard(
               icon: AppIcons.barcode,
               title: 'Barkod Tara',
               subtitle: 'Hızlı tarama',
@@ -276,10 +578,10 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildRecentProductsSection(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
     final products = productProvider.products;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (products.isEmpty) {
-      return _buildEmptyState(
-        context,
+      return PremiumEmptyState(
         icon: AppIcons.products,
         title: 'Henüz ürün yok',
         subtitle: 'İlk ürününüzü ekleyerek başlayın',
@@ -299,32 +601,23 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Son Eklenenler',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, AppConstants.routeProducts);
-              },
-              icon: const Icon(AppIcons.arrowRight, size: 14),
-              label: const Text('Tümünü Gör'),
-            ),
-          ],
+        PremiumSectionHeader(
+          title: 'Son Eklenenler',
+          actionText: 'Tümünü Gör',
+          actionIcon: Icons.arrow_forward_rounded,
+          onActionTap: () {
+            Navigator.pushNamed(context, AppConstants.routeProducts);
+          },
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         ...recentProducts.asMap().entries.map((entry) {
           final index = entry.key;
           final product = entry.value;
+
           return TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 300 + (index * 50)),
-            curve: Curves.easeOut,
+            duration: Duration(milliseconds: 400 + (index * 100)),
+            curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
                 opacity: value,
@@ -334,56 +627,103 @@ class DashboardScreen extends StatelessWidget {
                 ),
               );
             },
-            child: Card(
+            child: PremiumCard(
               margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppConstants.primaryColor.withOpacity(0.2),
-                        AppConstants.primaryColor.withOpacity(0.1),
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppConstants.routeProductDetail,
+                  arguments: {'productId': product.id},
+                );
+              },
+              child: Row(
+                children: [
+                  // Product Icon
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppConstants.primaryColor.withOpacity(0.15),
+                          AppConstants.secondaryColor.withOpacity(0.1),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      AppIcons.products,
+                      color: AppConstants.primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Product Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? Colors.white
+                                : AppConstants.neutralDark,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.inventory_2_rounded,
+                              size: 14,
+                              color: Colors.grey[500],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Stok: ${product.stock}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    AppIcons.products,
-                    color: AppConstants.primaryColor,
-                  ),
-                ),
-                title: Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text('Stok: ${product.stock}'),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
+
+                  // Price Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppConstants.successColor.withOpacity(0.15),
+                          AppConstants.successColor.withOpacity(0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
                       '${product.salePrice.toStringAsFixed(2)} ₺',
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                         color: AppConstants.successColor,
                       ),
                     ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppConstants.routeProductDetail,
-                    arguments: {'productId': product.id},
-                  );
-                },
+                  ),
+                ],
               ),
             ),
           );
@@ -395,6 +735,7 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildCriticalStockSection(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
     final products = productProvider.products;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final criticalProducts = products
         .where((p) => p.stock <= AppConstants.criticalStockThreshold)
@@ -407,38 +748,30 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppConstants.criticalStockColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                AppIcons.criticalStock,
-                color: AppConstants.criticalStockColor,
-                size: 20,
-              ),
+        PremiumSectionHeader(
+          title: 'Kritik Stok',
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppConstants.criticalStockColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(width: 12),
-            Text(
-              'Kritik Stoktaki Ürünler',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppConstants.criticalStockColor,
-              ),
+            child: const Icon(
+              AppIcons.criticalStock,
+              color: AppConstants.criticalStockColor,
+              size: 20,
             ),
-          ],
+          ),
         ),
         const SizedBox(height: 16),
         ...criticalProducts.asMap().entries.map((entry) {
           final index = entry.key;
           final product = entry.value;
+
           return TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 300 + (index * 50)),
-            curve: Curves.easeOut,
+            duration: Duration(milliseconds: 400 + (index * 100)),
+            curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
                 opacity: value,
@@ -448,52 +781,158 @@ class DashboardScreen extends StatelessWidget {
                 ),
               );
             },
-            child: Card(
+            child: Container(
               margin: const EdgeInsets.only(bottom: 12),
-              color: AppConstants.criticalStockColor.withOpacity(0.05),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppConstants.criticalStockColor.withOpacity(0.1)
+                    : AppConstants.criticalStockColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppConstants.criticalStockColor.withOpacity(0.2),
+                  width: 1.5,
                 ),
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppConstants.criticalStockColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    AppIcons.criticalStock,
-                    color: AppConstants.criticalStockColor,
-                  ),
-                ),
-                title: Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  'Stok: ${product.stock}',
-                  style: const TextStyle(
-                    color: AppConstants.criticalStockColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                trailing: FilledButton.icon(
-                  onPressed: () {
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
                     Navigator.pushNamed(
                       context,
-                      AppConstants.routeStockEntry,
-                      arguments: {
-                        'productId': product.id,
-                        'type': AppConstants.stockTypeIn,
-                      },
+                      AppConstants.routeProductDetail,
+                      arguments: {'productId': product.id},
                     );
                   },
-                  icon: const Icon(AppIcons.add, size: 18),
-                  label: const Text('Ekle'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppConstants.criticalStockColor,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // Warning Icon
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: AppConstants.criticalStockColor.withOpacity(
+                              0.15,
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                            Icons.warning_amber_rounded,
+                            color: AppConstants.criticalStockColor,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+
+                        // Product Info
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : AppConstants.neutralDark,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppConstants.criticalStockColor
+                                          .withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      'Stok: ${product.stock}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppConstants.criticalStockColor,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Add Stock Button
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppConstants.criticalStockColor,
+                                Color(0xFFB91C1C),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppConstants.criticalStockColor
+                                    .withOpacity(0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppConstants.routeStockEntry,
+                                  arguments: {
+                                    'productId': product.id,
+                                    'type': AppConstants.stockTypeIn,
+                                  },
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.add_rounded,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Ekle',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -504,78 +943,38 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String actionText,
-    required VoidCallback onAction,
-  }) {
-    return Center(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(icon, size: 64, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: onAction,
-                icon: const Icon(AppIcons.add),
-                label: Text(actionText),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildPremiumDrawer(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  Widget _buildDrawer(BuildContext context) {
     return Drawer(
+      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
       child: Column(
         children: [
+          // Premium Drawer Header
           Container(
-            decoration: BoxDecoration(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 20,
+              left: 24,
+              right: 24,
+              bottom: 24,
+            ),
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  AppConstants.primaryColor,
-                  AppConstants.secondaryColor,
-                ],
+                colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
               ),
             ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
                         AppIcons.appLogo,
@@ -583,38 +982,64 @@ class DashboardScreen extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      AppConstants.appName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Stok Yönetim Sistemi',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'v${AppConstants.appVersion}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 20),
+                const Text(
+                  AppConstants.appName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Akıllı Stok Yönetimi',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
+
+          // Menu Items
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               children: [
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.dashboard,
                   title: 'Dashboard',
+                  isSelected: true,
                   onTap: () => Navigator.pop(context),
                 ),
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.products,
                   title: 'Ürünler',
                   onTap: () {
@@ -622,7 +1047,8 @@ class DashboardScreen extends StatelessWidget {
                     Navigator.pushNamed(context, AppConstants.routeProducts);
                   },
                 ),
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.categories,
                   title: 'Kategoriler',
                   onTap: () {
@@ -630,7 +1056,17 @@ class DashboardScreen extends StatelessWidget {
                     Navigator.pushNamed(context, AppConstants.routeCategories);
                   },
                 ),
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.business_rounded,
+                  title: 'Markalar',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppConstants.routeBrands);
+                  },
+                ),
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.reports,
                   title: 'Raporlar',
                   onTap: () {
@@ -638,8 +1074,24 @@ class DashboardScreen extends StatelessWidget {
                     Navigator.pushNamed(context, AppConstants.routeReports);
                   },
                 ),
-                const Divider(height: 32),
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.history_rounded,
+                  title: 'Stok Geçmişi',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(
+                      context,
+                      AppConstants.routeStockHistory,
+                    );
+                  },
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(),
+                ),
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.settings,
                   title: 'Ayarlar',
                   onTap: () {
@@ -647,7 +1099,8 @@ class DashboardScreen extends StatelessWidget {
                     Navigator.pushNamed(context, AppConstants.routeSettings);
                   },
                 ),
-                _DrawerItem(
+                _buildDrawerItem(
+                  context,
                   icon: AppIcons.logout,
                   title: 'Çıkış Yap',
                   isDestructive: true,
@@ -669,166 +1122,64 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final Color color;
-  final Gradient? gradient;
+  Widget _buildDrawerItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool isSelected = false,
+    bool isDestructive = false,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDestructive
+        ? AppConstants.errorColor
+        : isSelected
+        ? AppConstants.primaryColor
+        : (isDark ? Colors.grey[400] : Colors.grey[700]);
 
-  const _StatCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.color,
-    this.gradient,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.white, size: 24),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withOpacity(0.9),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppConstants.primaryColor.withOpacity(0.1)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
       ),
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withOpacity(0.2), width: 1),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: color, size: 26),
-                ),
-                const SizedBox(height: 10),
-                Flexible(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Flexible(
-                  child: Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+      child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppConstants.primaryColor.withOpacity(0.15)
+                : (isDestructive
+                      ? AppConstants.errorColor.withOpacity(0.1)
+                      : Colors.transparent),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            fontSize: 15,
           ),
         ),
+        trailing: isSelected
+            ? Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: AppConstants.primaryColor,
+                  shape: BoxShape.circle,
+                ),
+              )
+            : null,
       ),
-    );
-  }
-}
-
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final bool isDestructive;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.isDestructive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: isDestructive ? Colors.red : null),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : null,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 }

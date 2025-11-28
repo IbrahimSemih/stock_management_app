@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/product_provider.dart';
@@ -6,62 +7,71 @@ import '../models/category.dart';
 import '../utils/app_icons.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_appbar.dart';
+import '../widgets/premium_widgets.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(title: 'Kategoriler'),
-      body: Consumer<CategoryProvider>(
-        builder: (context, categoryProvider, _) {
-          if (categoryProvider.categories.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(AppIcons.categories, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Henüz kategori eklenmemiş',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: categoryProvider.categories.length,
-            itemBuilder: (context, index) {
-              final category = categoryProvider.categories[index];
-              return _CategoryCard(category: category);
-            },
-          );
-        },
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            heroTag: 'brands_fab',
-            onPressed: () {
-              Navigator.pushNamed(context, AppConstants.routeBrands);
-            },
-            icon: const Icon(Icons.branding_watermark),
-            label: const Text('Markalar'),
-            backgroundColor: AppConstants.secondaryColor,
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton.extended(
-            heroTag: 'categories_fab',
-            onPressed: () => _showAddCategoryDialog(context),
-            icon: const Icon(AppIcons.add),
-            label: const Text('Kategori Ekle'),
-          ),
-        ],
+      child: Scaffold(
+        appBar: const CustomAppBar(title: 'Kategoriler'),
+        body: Consumer<CategoryProvider>(
+          builder: (context, categoryProvider, _) {
+            if (categoryProvider.categories.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(AppIcons.categories, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Henüz kategori eklenmemiş',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: categoryProvider.categories.length,
+              itemBuilder: (context, index) {
+                final category = categoryProvider.categories[index];
+                return _CategoryCard(category: category);
+              },
+            );
+          },
+        ),
+        floatingActionButton: PremiumFABGroup(
+          items: [
+            PremiumFABItem(
+              text: 'Markalar',
+              icon: Icons.business_rounded,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF7C3AED), Color(0xFF9333EA)],
+              ),
+              shadowColor: AppConstants.secondaryColor,
+              onPressed: () {
+                Navigator.pushNamed(context, AppConstants.routeBrands);
+              },
+            ),
+            PremiumFABItem(
+              text: 'Kategori Ekle',
+              icon: Icons.add_rounded,
+              onPressed: () => _showAddCategoryDialog(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -132,50 +142,50 @@ class _CategoryCard extends StatelessWidget {
     final productCount = _getProductCount(context);
 
     return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue.withOpacity(0.1),
-              child: const Icon(AppIcons.categories, color: Colors.blue),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue.withOpacity(0.1),
+          child: const Icon(AppIcons.categories, color: Colors.blue),
+        ),
+        title: Text(
+          category.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('$productCount ürün'),
+        trailing: PopupMenuButton(
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'edit',
+              child: const Row(
+                children: [
+                  Icon(AppIcons.editProduct, size: 20),
+                  SizedBox(width: 8),
+                  Text('Düzenle'),
+                ],
+              ),
             ),
-            title: Text(
-              category.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            PopupMenuItem(
+              value: 'delete',
+              child: const Row(
+                children: [
+                  Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Sil', style: TextStyle(color: Colors.red)),
+                ],
+              ),
             ),
-            subtitle: Text('$productCount ürün'),
-            trailing: PopupMenuButton(
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: const Row(
-                    children: [
-                      Icon(AppIcons.editProduct, size: 20),
-                      SizedBox(width: 8),
-                      Text('Düzenle'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: const Row(
-                    children: [
-                      Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Sil', style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) async {
-                if (value == 'edit') {
-                  _showEditDialog(context);
-                } else if (value == 'delete') {
-                  _showDeleteDialog(context);
-                }
-              },
-            ),
-          ),
-        );
+          ],
+          onSelected: (value) async {
+            if (value == 'edit') {
+              _showEditDialog(context);
+            } else if (value == 'delete') {
+              _showDeleteDialog(context);
+            }
+          },
+        ),
+      ),
+    );
   }
 
   void _showEditDialog(BuildContext context) {

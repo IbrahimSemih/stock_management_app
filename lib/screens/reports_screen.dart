@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -181,11 +182,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Raporlar ve Yedekleme',
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
-      body: _isExporting
+      child: Scaffold(
+        appBar: const CustomAppBar(
+          title: 'Raporlar ve Yedekleme',
+        ),
+        body: _isExporting
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
@@ -332,6 +341,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
               ],
             ),
+      ),
     );
   }
 

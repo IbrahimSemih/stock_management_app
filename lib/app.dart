@@ -9,6 +9,7 @@ import 'providers/auth_provider.dart';
 import 'providers/stock_history_provider.dart';
 import 'utils/constants.dart';
 import 'routes.dart';
+import 'widgets/status_bar_wrapper.dart';
 
 class SmartStockApp extends StatelessWidget {
   const SmartStockApp({super.key});
@@ -62,6 +63,12 @@ class SmartStockApp extends StatelessWidget {
             themeMode: settings.themeMode,
             initialRoute: AppConstants.routeSplash,
             onGenerateRoute: AppRoutes.generateRoute,
+            builder: (context, child) {
+              // Her sayfa için status bar wrapper ile sarmala
+              return StatusBarWrapper(
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
           );
         },
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/product_provider.dart';
@@ -9,6 +10,7 @@ import '../../utils/app_icons.dart';
 import '../../models/product.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/custom_appbar.dart';
+import '../../widgets/premium_widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ProductsListScreen extends StatefulWidget {
@@ -226,9 +228,16 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
     final categoryProvider = context.watch<CategoryProvider>();
     final brandProvider = context.watch<BrandProvider>();
     final filteredProducts = _getFilteredProducts();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: CustomAppBar(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Scaffold(
+        appBar: CustomAppBar(
         title: 'Ürünler',
         actions: [
           Container(
@@ -388,7 +397,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                           _selectedBrandId = null;
                         });
                       },
-                      selectedColor: AppConstants.secondaryColor.withOpacity(0.2),
+                      selectedColor: AppConstants.secondaryColor.withOpacity(
+                        0.2,
+                      ),
                       checkmarkColor: AppConstants.secondaryColor,
                       labelStyle: TextStyle(
                         color: isSelected
@@ -436,62 +447,26 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
             child: productProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredProducts.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              _searchQuery.isNotEmpty
-                                  ? AppIcons.search
-                                  : AppIcons.products,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            _searchQuery.isNotEmpty
-                                ? 'Arama sonucu bulunamadı'
-                                : 'Henüz ürün eklenmemiş',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _searchQuery.isNotEmpty
-                                ? 'Farklı bir arama terimi deneyin'
-                                : 'İlk ürününüzü ekleyerek başlayın',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          if (_searchQuery.isEmpty) ...[
-                            const SizedBox(height: 24),
-                            FilledButton.icon(
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  AppConstants.routeProductEdit,
-                                  arguments: {'productId': null},
-                                );
-                              },
-                              icon: const Icon(AppIcons.addProduct),
-                              label: const Text('Ürün Ekle'),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
+                ? PremiumEmptyState(
+                    icon: _searchQuery.isNotEmpty
+                        ? AppIcons.search
+                        : AppIcons.products,
+                    title: _searchQuery.isNotEmpty
+                        ? 'Arama sonucu bulunamadı'
+                        : 'Henüz ürün eklenmemiş',
+                    subtitle: _searchQuery.isNotEmpty
+                        ? 'Farklı bir arama terimi deneyin'
+                        : 'İlk ürününüzü ekleyerek başlayın',
+                    actionText: _searchQuery.isEmpty ? 'Ürün Ekle' : null,
+                    onAction: _searchQuery.isEmpty
+                        ? () {
+                            Navigator.pushNamed(
+                              context,
+                              AppConstants.routeProductEdit,
+                              arguments: {'productId': null},
+                            );
+                          }
+                        : null,
                   )
                 : _isGridView
                 ? GridView.builder(
@@ -531,21 +506,22 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'products_fab',
-        onPressed: () {
-          Navigator.pushNamed(
-            context,
-            AppConstants.routeProductEdit,
-            arguments: {'productId': null},
-          );
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Ürün Ekle',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: AppConstants.primaryColor,
+      floatingActionButton: filteredProducts.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 100),
+              child: PremiumFAB(
+                text: 'Ürün Ekle',
+                icon: Icons.add_rounded,
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppConstants.routeProductEdit,
+                    arguments: {'productId': null},
+                  );
+                },
+              ),
+              )
+          : null,
       ),
     );
   }
