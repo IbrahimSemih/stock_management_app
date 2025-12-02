@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -73,6 +75,10 @@ class ExportService {
 
   // PDF Export
   static Future<String> exportToPDF() async {
+    // Türkçe karakter desteği için Google Fonts yükle
+    final regularFont = await PdfGoogleFonts.notoSansRegular();
+    final boldFont = await PdfGoogleFonts.notoSansBold();
+    
     final pdf = pw.Document();
 
     // Get products
@@ -101,36 +107,52 @@ class ExportService {
       };
     }).toList();
 
+    // Tema stilleri
+    final headerStyle = pw.TextStyle(
+      font: boldFont,
+      fontSize: 24,
+      fontWeight: pw.FontWeight.bold,
+    );
+    final titleStyle = pw.TextStyle(
+      font: boldFont,
+      fontSize: 18,
+      fontWeight: pw.FontWeight.bold,
+    );
+    final tableHeaderStyle = pw.TextStyle(
+      font: boldFont,
+      fontWeight: pw.FontWeight.bold,
+    );
+    final normalStyle = pw.TextStyle(font: regularFont);
+    final boldStyle = pw.TextStyle(
+      font: boldFont,
+      fontWeight: pw.FontWeight.bold,
+    );
+
     // Build PDF
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
+        theme: pw.ThemeData.withFont(
+          base: regularFont,
+          bold: boldFont,
+        ),
         build: (context) => [
           pw.Header(
             level: 0,
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
-                pw.Text(
-                  AppConstants.appName,
-                  style: pw.TextStyle(
-                    fontSize: 24,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
+                pw.Text(AppConstants.appName, style: headerStyle),
                 pw.Text(
                   DateFormat(AppConstants.dateFormat).format(DateTime.now()),
-                  style: const pw.TextStyle(fontSize: 12),
+                  style: normalStyle.copyWith(fontSize: 12),
                 ),
               ],
             ),
           ),
           pw.SizedBox(height: 20),
-          pw.Text(
-            'Stok Raporu',
-            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-          ),
+          pw.Text('Stok Raporu', style: titleStyle),
           pw.SizedBox(height: 20),
           pw.Table(
             border: pw.TableBorder.all(),
@@ -141,31 +163,19 @@ class ExportService {
                 children: [
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Ürün Adı',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                    ),
+                    child: pw.Text('Ürün Adı', style: tableHeaderStyle),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Kategori',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                    ),
+                    child: pw.Text('Kategori', style: tableHeaderStyle),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Stok',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                    ),
+                    child: pw.Text('Stok', style: tableHeaderStyle),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text(
-                      'Satış Fiyatı',
-                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                    ),
+                    child: pw.Text('Satış Fiyatı', style: tableHeaderStyle),
                   ),
                 ],
               ),
@@ -175,20 +185,21 @@ class ExportService {
                   children: [
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(8),
-                      child: pw.Text(product['name'] as String),
+                      child: pw.Text(product['name'] as String, style: normalStyle),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(8),
-                      child: pw.Text(product['category'] as String),
+                      child: pw.Text(product['category'] as String, style: normalStyle),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(8),
-                      child: pw.Text('${product['stock']}'),
+                      child: pw.Text('${product['stock']}', style: normalStyle),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(8),
                       child: pw.Text(
                         '${(product['salePrice'] as double).toStringAsFixed(2)} ₺',
+                        style: normalStyle,
                       ),
                     ),
                   ],
@@ -199,11 +210,11 @@ class ExportService {
           pw.SizedBox(height: 20),
           pw.Text(
             'Toplam Ürün Sayısı: ${products.length}',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            style: boldStyle,
           ),
           pw.Text(
             'Toplam Stok: ${products.fold<int>(0, (sum, p) => sum + (p['stock'] as int))}',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            style: boldStyle,
           ),
         ],
       ),
@@ -244,20 +255,23 @@ class ExportService {
     return backupPath;
   }
 
-  // Database Restore
-  static Future<void> restoreDatabase(String backupPath) async {
+  // Database Restore (bytes ile - FilePicker withData:true için)
+  static Future<void> restoreDatabaseFromBytes(Uint8List backupBytes) async {
+    if (backupBytes.isEmpty) {
+      throw Exception('Yedek dosyası boş');
+    }
+    
+    debugPrint('Yedek dosyası boyutu: ${backupBytes.length} bytes');
+    
     final directory = await getApplicationDocumentsDirectory();
     final dbPath = '${directory.path}/${AppConstants.dbName}';
-    final sourceFile = File(backupPath);
     final targetFile = File(dbPath);
-
-    if (!await sourceFile.exists()) {
-      throw Exception('Yedek dosyası bulunamadı');
-    }
 
     // Veritabanı bağlantısını kapat
     try {
       await _db.closeDatabase();
+      // Bağlantının tamamen kapanması için bekle
+      await Future.delayed(const Duration(milliseconds: 300));
     } catch (e) {
       debugPrint('Veritabanı kapatma hatası (devam ediliyor): $e');
     }
@@ -266,19 +280,42 @@ class ExportService {
     if (await targetFile.exists()) {
       try {
         await targetFile.delete();
+        await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
         debugPrint('Mevcut veritabanı silme hatası: $e');
         // Dosya kullanımda olabilir, tekrar dene
         await Future.delayed(const Duration(milliseconds: 500));
         if (await targetFile.exists()) {
-          await targetFile.delete();
+          try {
+            await targetFile.delete();
+          } catch (e2) {
+            debugPrint('İkinci silme denemesi hatası: $e2');
+            throw Exception('Mevcut veritabanı silinemedi. Uygulamayı yeniden başlatıp tekrar deneyin.');
+          }
         }
       }
     }
 
-    // Yedek dosyasını kopyala
-    await sourceFile.copy(dbPath);
-    
-    debugPrint('Veritabanı geri yüklendi: $dbPath');
+    // Yedek dosyasını yaz
+    try {
+      await targetFile.writeAsBytes(backupBytes);
+      debugPrint('Veritabanı geri yüklendi: $dbPath');
+    } catch (e) {
+      debugPrint('Veritabanı yazma hatası: $e');
+      throw Exception('Veritabanı yazılamadı: $e');
+    }
+  }
+
+  // Database Restore (dosya yolu ile - eski method, uyumluluk için)
+  static Future<void> restoreDatabase(String backupPath) async {
+    final sourceFile = File(backupPath);
+
+    if (!await sourceFile.exists()) {
+      throw Exception('Yedek dosyası bulunamadı');
+    }
+
+    // Dosyayı oku ve bytes method'unu çağır
+    final backupBytes = await sourceFile.readAsBytes();
+    await restoreDatabaseFromBytes(backupBytes);
   }
 }

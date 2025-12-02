@@ -41,6 +41,7 @@ dependencies:
   qr_flutter: ^4.1.0
   excel: ^4.0.6
   pdf: ^3.11.3
+  printing: ^5.14.2
   share_plus: ^12.0.1
   shared_preferences: ^2.3.3
   file_picker: ^8.1.4

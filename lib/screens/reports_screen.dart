@@ -104,9 +104,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<void> _restoreDatabase() async {
+    // FileType.any kullanıyoruz çünkü .db uzantısı için standart MIME type yok
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['db'],
+      type: FileType.any,
+      withData: true, // Dosya içeriğini direkt al (cache sorunu için)
     );
 
     if (result == null || result.files.single.path == null) {
@@ -114,6 +115,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
 
     final filePath = result.files.single.path!;
+    final fileName = result.files.single.name;
+    
+    // Dosya uzantısını kontrol et
+    if (!fileName.toLowerCase().endsWith('.db')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lütfen .db uzantılı bir yedek dosyası seçin'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
 
     if (!mounted) return;
 
@@ -144,7 +159,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     setState(() => _isExporting = true);
     try {
-      await ExportService.restoreDatabase(filePath);
+      // withData: true ile bytes direkt alınıyor
+      final bytes = result.files.single.bytes;
+      
+      if (bytes != null && bytes.isNotEmpty) {
+        // Bytes ile geri yükle (daha güvenilir)
+        await ExportService.restoreDatabaseFromBytes(bytes);
+      } else {
+        // Bytes yoksa dosya yolunu kullan (fallback)
+        await ExportService.restoreDatabase(filePath);
+      }
       
       // Provider'ları yeniden yükle
       if (mounted) {
