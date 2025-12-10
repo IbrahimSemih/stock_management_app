@@ -1,13 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../models/category.dart';
 import '../../models/stock_history.dart';
 import '../../services/db_helper.dart';
 import '../../utils/constants.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -26,6 +29,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   void initState() {
     super.initState();
     _loadStockHistory();
+  }
+
+  Widget _buildProductImage(String imagePath) {
+    final isNetworkImage =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
+    Widget errorWidget = Container(
+      color: AppConstants.primaryColor.withOpacity(0.1),
+      child: const Icon(
+        Icons.inventory_2,
+        size: 80,
+        color: AppConstants.primaryColor,
+      ),
+    );
+
+    if (isNetworkImage) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => errorWidget,
+      );
+    } else {
+      final file = File(imagePath);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) => errorWidget,
+        );
+      } else {
+        return errorWidget;
+      }
+    }
   }
 
   Future<void> _loadStockHistory() async {
@@ -50,18 +90,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     if (product == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Ürün Detayı')),
-        body: const Center(child: Text('Ürün bulunamadı')),
+        appBar: AppBar(title: Text(context.tr('product_details'))),
+        body: Center(child: Text(context.tr('no_data'))),
       );
     }
 
     final category = categoryProvider.categories.firstWhere(
       (c) => c.id == product.categoryId,
-      orElse: () => Category(id: 0, name: 'Kategori Yok'),
+      orElse: () => Category(id: 0, name: context.tr('uncategorized')),
     );
 
-    final isCriticalStock =
-        product.stock <= AppConstants.criticalStockThreshold;
+    final settings = context.watch<SettingsProvider>();
+    final isCriticalStock = product.stock <= settings.lowStockThreshold;
     final dateFormat = DateFormat(AppConstants.dateTimeFormat);
 
     return Scaffold(
@@ -72,20 +112,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: product.imagePath != null
-                  ? Image.network(
-                      product.imagePath!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppConstants.primaryColor.withOpacity(0.1),
-                          child: const Icon(
-                            Icons.inventory_2,
-                            size: 80,
-                            color: AppConstants.primaryColor,
-                          ),
-                        );
-                      },
-                    )
+                  ? _buildProductImage(product.imagePath!)
                   : Container(
                       color: AppConstants.primaryColor.withOpacity(0.1),
                       child: const Icon(
@@ -142,7 +169,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         children: [
                           _InfoItem(
                             icon: Icons.inventory_2,
-                            label: 'Stok',
+                            label: context.tr('stock'),
                             value: '${product.stock}',
                             color: isCriticalStock
                                 ? AppConstants.criticalStockColor
@@ -150,15 +177,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           _InfoItem(
                             icon: Icons.shopping_bag,
-                            label: 'Alış Fiyatı',
+                            label: context.tr('purchase_price'),
                             value:
-                                '${product.purchasePrice.toStringAsFixed(2)} ₺',
+                                '${settings.currencySymbol}${product.purchasePrice.toStringAsFixed(2)}',
                             color: AppConstants.primaryColor,
                           ),
                           _InfoItem(
                             icon: Icons.sell,
-                            label: 'Satış Fiyatı',
-                            value: '${product.salePrice.toStringAsFixed(2)} ₺',
+                            label: context.tr('sale_price'),
+                            value:
+                                '${settings.currencySymbol}${product.salePrice.toStringAsFixed(2)}',
                             color: AppConstants.successColor,
                           ),
                         ],
@@ -176,7 +204,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Barkod / QR Kod',
+                              context.tr('barcode'),
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -215,7 +243,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Açıklama',
+                              context.tr('description'),
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -235,14 +263,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Column(
                         children: [
                           _DateRow(
-                            label: 'Oluşturulma',
+                            label: context.tr('created_at'),
                             date: dateFormat.format(
                               DateTime.parse(product.createdAt),
                             ),
                           ),
                           const Divider(),
                           _DateRow(
-                            label: 'Son Güncelleme',
+                            label: context.tr('updated_at'),
                             date: dateFormat.format(
                               DateTime.parse(product.updatedAt),
                             ),
@@ -269,7 +297,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             );
                           },
                           icon: const Icon(Icons.input),
-                          label: const Text('Stok Giriş'),
+                          label: Text(context.tr('stock_in')),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppConstants.successColor,
                           ),
@@ -289,7 +317,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             );
                           },
                           icon: const Icon(Icons.output),
-                          label: const Text('Stok Çıkış'),
+                          label: Text(context.tr('stock_out')),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppConstants.warningColor,
                           ),
@@ -301,7 +329,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                   // Stock History
                   Text(
-                    'Stok Hareket Geçmişi',
+                    context.tr('stock_history'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -315,7 +343,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             padding: const EdgeInsets.all(32),
                             child: Center(
                               child: Text(
-                                'Henüz stok hareketi yok',
+                                context.tr('no_stock_history'),
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                             ),
@@ -351,8 +379,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 ),
                                 title: Text(
                                   history.type == AppConstants.stockTypeIn
-                                      ? 'Stok Giriş'
-                                      : 'Stok Çıkış',
+                                      ? context.tr('stock_in')
+                                      : context.tr('stock_out'),
                                 ),
                                 subtitle: Text(
                                   dateFormat.format(

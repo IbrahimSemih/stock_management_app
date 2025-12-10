@@ -7,6 +7,7 @@ import '../models/stock_history.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
+import '../l10n/app_localizations.dart';
 
 class StockHistoryScreen extends StatefulWidget {
   final int? productId;
@@ -90,9 +91,7 @@ class _StockHistoryScreenState extends State<StockHistoryScreen> {
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.productId != null
-            ? 'Ürün Stok Geçmişi'
-            : 'Stok Geçmişi',
+        title: context.tr('stock_history'),
         showThemeToggle: false,
       ),
       body: Column(
@@ -116,72 +115,66 @@ class _StockHistoryScreenState extends State<StockHistoryScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: FilterChip(
-                        label: const Text('Tümü'),
-                        selected: _filterType == 'all',
-                        onSelected: (selected) {
-                          setState(() => _filterType = 'all');
-                        },
+                      child: _buildFilterButton(
+                        context: context,
+                        label: context.tr('all'),
+                        icon: Icons.check,
+                        isSelected: _filterType == 'all',
+                        color: Theme.of(context).primaryColor,
+                        onTap: () => setState(() => _filterType = 'all'),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: FilterChip(
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(AppIcons.stockIn, size: 16),
-                            const SizedBox(width: 4),
-                            const Text('Giriş'),
-                          ],
-                        ),
-                        selected: _filterType == 'IN',
-                        onSelected: (selected) {
-                          setState(() => _filterType = 'IN');
-                        },
+                      child: _buildFilterButton(
+                        context: context,
+                        label: context.tr('stock_in'),
+                        icon: AppIcons.stockIn,
+                        isSelected: _filterType == 'IN',
+                        color: AppConstants.successColor,
+                        onTap: () => setState(() => _filterType = 'IN'),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: FilterChip(
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(AppIcons.stockOut, size: 16),
-                            const SizedBox(width: 4),
-                            const Text('Çıkış'),
-                          ],
-                        ),
-                        selected: _filterType == 'OUT',
-                        onSelected: (selected) {
-                          setState(() => _filterType = 'OUT');
-                        },
+                      child: _buildFilterButton(
+                        context: context,
+                        label: context.tr('stock_out'),
+                        icon: AppIcons.stockOut,
+                        isSelected: _filterType == 'OUT',
+                        color: AppConstants.warningColor,
+                        onTap: () => setState(() => _filterType = 'OUT'),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 // Date range filter
-                OutlinedButton.icon(
-                  onPressed: () => _selectDateRange(context),
-                  icon: const Icon(AppIcons.calendar),
-                  label: Text(
-                    _startDate != null && _endDate != null
-                        ? '${DateFormat('dd/MM/yyyy').format(_startDate!)} - ${DateFormat('dd/MM/yyyy').format(_endDate!)}'
-                        : 'Tarih Aralığı Seç',
-                  ),
+                Column(
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () => _selectDateRange(context),
+                      icon: const Icon(AppIcons.calendar),
+                      label: Text(context.tr('custom_range')),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        side: BorderSide(
+                          color: _startDate != null && _endDate != null
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey.withOpacity(0.5),
+                          width: _startDate != null && _endDate != null ? 2 : 1,
+                        ),
+                        backgroundColor: _startDate != null && _endDate != null
+                            ? Theme.of(context).primaryColor.withOpacity(0.1)
+                            : null,
+                      ),
+                    ),
+                    if (_startDate != null && _endDate != null) ...[
+                      const SizedBox(height: 10),
+                      _buildSelectedDateRangeChip(context),
+                    ],
+                  ],
                 ),
-                if (_startDate != null && _endDate != null)
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _startDate = null;
-                        _endDate = null;
-                      });
-                      _refreshHistory();
-                    },
-                    child: const Text('Filtreyi Temizle'),
-                  ),
               ],
             ),
           ),
@@ -228,17 +221,144 @@ class _StockHistoryScreenState extends State<StockHistoryScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Stok geçmişi bulunamadı',
+            context.tr('no_stock_history'),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Henüz stok hareketi yapılmamış',
+            context.tr('empty_history'),
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSelectedDateRangeChip(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final startFormatted = DateFormat('dd MMM').format(_startDate!);
+    final endFormatted = DateFormat('dd MMM yyyy').format(_endDate!);
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            primaryColor.withOpacity(0.15),
+            primaryColor.withOpacity(0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color: primaryColor.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.date_range,
+            size: 18,
+            color: primaryColor,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$startFormatted  →  $endFormatted',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: primaryColor,
+            ),
+          ),
+          const SizedBox(width: 10),
+          InkWell(
+            onTap: () {
+              setState(() {
+                _startDate = null;
+                _endDate = null;
+              });
+              _refreshHistory();
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.close,
+                size: 16,
+                color: Colors.red[400],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withOpacity(0.15) : Colors.grey.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? color : Colors.grey.withOpacity(0.3),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: color.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected ? color : Colors.grey[600],
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? color : Colors.grey[700],
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -273,7 +393,7 @@ class _StockHistoryScreenState extends State<StockHistoryScreen> {
           ),
         ),
         title: Text(
-          productName ?? 'Ürün #${historyItem.productId}',
+          productName ?? '${context.tr('product')} #${historyItem.productId}',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(

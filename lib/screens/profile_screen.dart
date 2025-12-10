@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
+import '../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -14,8 +15,8 @@ class ProfileScreen extends StatelessWidget {
     final user = authProvider.user;
 
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Profil',
+      appBar: CustomAppBar(
+        title: context.tr('profile'),
         showThemeToggle: false,
       ),
       body: SingleChildScrollView(
@@ -39,14 +40,14 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      user?.displayName ?? 'Kullanıcı',
+                      user?.displayName ?? context.tr('user'),
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      user?.email ?? 'Offline Mod',
+                      user?.email ?? context.tr('offline_mode'),
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -73,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'E-posta doğrulanmamış',
+                              context.tr('email_not_verified'),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppConstants.warningColor,
@@ -92,39 +93,49 @@ class ProfileScreen extends StatelessWidget {
 
             // Account Info
             _ProfileSection(
-              title: 'Hesap Bilgileri',
+              title: context.tr('account_info'),
               children: [
                 _ProfileTile(
                   icon: AppIcons.email,
-                  title: 'E-posta',
-                  subtitle: user?.email ?? 'Offline Mod',
+                  title: context.tr('email'),
+                  subtitle: user?.email ?? context.tr('offline_mode'),
                 ),
                 if (user != null) ...[
                   _ProfileTile(
                     icon: Icons.verified_user_rounded,
-                    title: 'E-posta Doğrulama',
-                    subtitle: user.emailVerified ? 'Doğrulanmış' : 'Doğrulanmamış',
+                    title: context.tr('email'),
+                    subtitle: user.emailVerified ? context.tr('verified') : context.tr('not_verified'),
                     trailing: user.emailVerified
                         ? Icon(Icons.check_circle, color: AppConstants.successColor)
                         : TextButton(
-                            onPressed: () {
-                              // TODO: Email verification
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('E-posta doğrulama özelliği yakında eklenecek'),
-                                ),
-                              );
+                            onPressed: () async {
+                              final authProvider = context.read<AuthProvider>();
+                              final success = await authProvider.sendEmailVerification();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? context.tr('email_verification_sent')
+                                          : context.tr(authProvider.errorMessage ?? 'error_occurred'),
+                                    ),
+                                    backgroundColor: success
+                                        ? AppConstants.successColor
+                                        : AppConstants.errorColor,
+                                  ),
+                                );
+                              }
                             },
-                            child: const Text('Doğrula'),
+                            child: Text(context.tr('confirm')),
                           ),
                   ),
                 ],
                 _ProfileTile(
                   icon: Icons.access_time_rounded,
-                  title: 'Üyelik Tarihi',
+                  title: context.tr('created_at'),
                   subtitle: user?.metadata.creationTime != null
                       ? '${user!.metadata.creationTime!.day}/${user.metadata.creationTime!.month}/${user.metadata.creationTime!.year}'
-                      : 'Bilinmiyor',
+                      : context.tr('no_data'),
                 ),
               ],
             ),
@@ -133,20 +144,20 @@ class ProfileScreen extends StatelessWidget {
 
             // Actions
             _ProfileSection(
-              title: 'İşlemler',
+              title: context.tr('security'),
               children: [
                 _ProfileTile(
                   icon: Icons.lock_reset_rounded,
-                  title: 'Şifre Değiştir',
-                  subtitle: 'Hesap şifrenizi değiştirin',
+                  title: context.tr('change_password'),
+                  subtitle: context.tr('change_password'),
                   onTap: () {
                     _showChangePasswordDialog(context);
                   },
                 ),
                 _ProfileTile(
                   icon: Icons.delete_outline_rounded,
-                  title: 'Hesabı Sil',
-                  subtitle: 'Hesabınızı kalıcı olarak silin',
+                  title: context.tr('delete_account'),
+                  subtitle: context.tr('delete_account_confirm'),
                   isDestructive: true,
                   onTap: () {
                     _showDeleteAccountDialog(context);
@@ -169,35 +180,35 @@ class ProfileScreen extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Şifre Değiştir'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('change_password')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: oldPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Mevcut Şifre',
-                  hintText: 'Mevcut şifrenizi girin',
+                decoration: InputDecoration(
+                  labelText: context.tr('current_password'),
+                  hintText: context.tr('current_password'),
                 ),
                 obscureText: true,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: newPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Yeni Şifre',
-                  hintText: 'Yeni şifrenizi girin',
+                decoration: InputDecoration(
+                  labelText: context.tr('new_password'),
+                  hintText: context.tr('new_password'),
                 ),
                 obscureText: true,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: confirmPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Yeni Şifre Tekrar',
-                  hintText: 'Yeni şifrenizi tekrar girin',
+                decoration: InputDecoration(
+                  labelText: context.tr('confirm_password'),
+                  hintText: context.tr('confirm_password'),
                 ),
                 obscureText: true,
               ),
@@ -206,15 +217,15 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
               if (newPasswordController.text != confirmPasswordController.text) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Yeni şifreler eşleşmiyor'),
+                  SnackBar(
+                    content: Text(context.tr('passwords_not_match')),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -223,23 +234,37 @@ class ProfileScreen extends StatelessWidget {
 
               if (newPasswordController.text.length < 6) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Şifre en az 6 karakter olmalıdır'),
+                  SnackBar(
+                    content: Text(context.tr('invalid_password')),
                     backgroundColor: Colors.red,
                   ),
                 );
                 return;
               }
 
-              // TODO: Implement password change
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Şifre değiştirme özelliği yakında eklenecek'),
-                ),
+              final authProvider = context.read<AuthProvider>();
+              final success = await authProvider.changePassword(
+                oldPasswordController.text,
+                newPasswordController.text,
               );
+
+              if (context.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? context.tr('password_changed')
+                          : context.tr(authProvider.errorMessage ?? 'password_change_failed'),
+                    ),
+                    backgroundColor: success
+                        ? AppConstants.successColor
+                        : AppConstants.errorColor,
+                  ),
+                );
+              }
             },
-            child: const Text('Değiştir'),
+            child: Text(context.tr('update')),
           ),
         ],
       ),
@@ -247,32 +272,77 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    final passwordController = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hesabı Sil'),
-        content: const Text(
-          'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz silinecektir.',
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('delete_account')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(context.tr('delete_account_confirm')),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: context.tr('password'),
+                  hintText: context.tr('password'),
+                  helperText: context.tr('enter_password_to_confirm'),
+                ),
+                obscureText: true,
+                autofocus: true,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
-            onPressed: () {
-              // TODO: Implement account deletion
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Hesap silme özelliği yakında eklenecek'),
-                ),
-              );
+            onPressed: () async {
+              if (passwordController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.tr('please_enter_password')),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              final authProvider = context.read<AuthProvider>();
+              final success = await authProvider.deleteAccount(passwordController.text);
+
+              if (context.mounted) {
+                Navigator.pop(ctx);
+                if (success) {
+                  Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.tr('account_deleted')),
+                      backgroundColor: AppConstants.successColor,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.tr(authProvider.errorMessage ?? 'account_deletion_failed'),
+                      ),
+                      backgroundColor: AppConstants.errorColor,
+                    ),
+                  );
+                }
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Sil'),
+            child: Text(context.tr('delete')),
           ),
         ],
       ),

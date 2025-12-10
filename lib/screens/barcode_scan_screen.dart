@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../models/product.dart';
 import '../utils/constants.dart';
+import '../l10n/app_localizations.dart';
 
 class BarcodeScanScreen extends StatefulWidget {
   const BarcodeScanScreen({super.key});
@@ -70,25 +71,25 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
   void _showProductNotFoundDialog(String barcode) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ürün Bulunamadı'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('product_not_found')),
         content: Text(
-          'Bu barkodla ($barcode) eşleşen bir ürün bulunamadı.\n\nYeni ürün oluşturmak ister misiniz?',
+          '${context.tr('no_barcode_found')}\n\nBarcode: $barcode',
         ),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               setState(() {
                 _isScanning = true;
                 _scannedBarcode = null;
               });
             },
-            child: const Text('İptal'),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               Navigator.pop(context);
               Navigator.pushNamed(
                 context,
@@ -99,7 +100,7 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                 },
               );
             },
-            child: const Text('Yeni Ürün Oluştur'),
+            child: Text(context.tr('create_product')),
           ),
         ],
       ),
@@ -110,7 +111,7 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Barkod Tarama'),
+        title: Text(context.tr('scan_barcode')),
       ),
       body: Stack(
         children: [
@@ -130,10 +131,10 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             margin: const EdgeInsets.all(100),
-            child: const Center(
+            child: Center(
               child: Text(
-                'Barkodu kare içine alın',
-                style: TextStyle(
+                context.tr('point_camera'),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -165,8 +166,8 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                   const SizedBox(height: 8),
                   Text(
                     _isScanning
-                        ? 'Barkodu tarayın...'
-                        : 'İşleniyor...',
+                        ? context.tr('scan_barcode')
+                        : context.tr('processing'),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -199,28 +200,28 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
     final textController = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Barkod Gir'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('enter_barcode')),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'Barkod numarasını girin',
+          decoration: InputDecoration(
+            hintText: context.tr('barcode'),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               if (textController.text.isNotEmpty) {
-                Navigator.pop(context);
+                Navigator.pop(ctx);
                 _processBarcode(textController.text.trim());
               }
             },
-            child: const Text('Ara'),
+            child: Text(context.tr('search')),
           ),
         ],
       ),

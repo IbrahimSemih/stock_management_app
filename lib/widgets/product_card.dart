@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/product.dart';
+import '../providers/settings_provider.dart';
 import '../utils/constants.dart';
+import '../l10n/app_localizations.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -34,9 +38,10 @@ class _ProductCardState extends State<ProductCard>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -45,10 +50,65 @@ class _ProductCardState extends State<ProductCard>
     super.dispose();
   }
 
+  Widget _buildProductImage(
+    String imagePath,
+    bool isCriticalStock, {
+    double size = 32,
+  }) {
+    final isNetworkImage =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
+    if (isNetworkImage) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.inventory_2_rounded,
+            color: isCriticalStock
+                ? AppConstants.criticalStockColor
+                : AppConstants.primaryColor,
+            size: size,
+          );
+        },
+      );
+    } else {
+      final file = File(imagePath);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.inventory_2_rounded,
+              color: isCriticalStock
+                  ? AppConstants.criticalStockColor
+                  : AppConstants.primaryColor,
+              size: size,
+            );
+          },
+        );
+      } else {
+        return Icon(
+          Icons.inventory_2_rounded,
+          color: isCriticalStock
+              ? AppConstants.criticalStockColor
+              : AppConstants.primaryColor,
+          size: size,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isCriticalStock =
-        widget.product.stock <= AppConstants.criticalStockThreshold;
+        widget.product.stock <=
+        context.watch<SettingsProvider>().lowStockThreshold;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
@@ -58,10 +118,7 @@ class _ProductCardState extends State<ProductCard>
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -71,18 +128,18 @@ class _ProductCardState extends State<ProductCard>
             border: widget.isSelected
                 ? Border.all(color: AppConstants.primaryColor, width: 2.5)
                 : isCriticalStock
-                    ? Border.all(
-                        color: AppConstants.criticalStockColor.withOpacity(0.4),
-                        width: 2,
-                      )
-                    : null,
+                ? Border.all(
+                    color: AppConstants.criticalStockColor.withOpacity(0.4),
+                    width: 2,
+                  )
+                : null,
             boxShadow: [
               BoxShadow(
                 color: widget.isSelected
                     ? AppConstants.primaryColor.withOpacity(0.2)
                     : isCriticalStock
-                        ? AppConstants.criticalStockColor.withOpacity(0.1)
-                        : Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+                    ? AppConstants.criticalStockColor.withOpacity(0.1)
+                    : Colors.black.withOpacity(isDark ? 0.3 : 0.06),
                 blurRadius: widget.isSelected ? 20 : 16,
                 offset: const Offset(0, 6),
                 spreadRadius: widget.isSelected ? 2 : 0,
@@ -128,7 +185,7 @@ class _ProductCardState extends State<ProductCard>
                               : null,
                         ),
                       ),
-                      
+
                     // Product Image
                     Hero(
                       tag: 'product_${widget.product.id}',
@@ -141,12 +198,18 @@ class _ProductCardState extends State<ProductCard>
                             end: Alignment.bottomRight,
                             colors: isCriticalStock
                                 ? [
-                                    AppConstants.criticalStockColor.withOpacity(0.15),
-                                    AppConstants.criticalStockColor.withOpacity(0.08),
+                                    AppConstants.criticalStockColor.withOpacity(
+                                      0.15,
+                                    ),
+                                    AppConstants.criticalStockColor.withOpacity(
+                                      0.08,
+                                    ),
                                   ]
                                 : [
                                     AppConstants.primaryColor.withOpacity(0.15),
-                                    AppConstants.secondaryColor.withOpacity(0.08),
+                                    AppConstants.secondaryColor.withOpacity(
+                                      0.08,
+                                    ),
                                   ],
                           ),
                           borderRadius: BorderRadius.circular(18),
@@ -154,18 +217,10 @@ class _ProductCardState extends State<ProductCard>
                         child: widget.product.imagePath != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(18),
-                                child: Image.network(
+                                child: _buildProductImage(
                                   widget.product.imagePath!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(
-                                      Icons.inventory_2_rounded,
-                                      color: isCriticalStock
-                                          ? AppConstants.criticalStockColor
-                                          : AppConstants.primaryColor,
-                                      size: 32,
-                                    );
-                                  },
+                                  isCriticalStock,
+                                  size: 32,
                                 ),
                               )
                             : Icon(
@@ -193,8 +248,8 @@ class _ProductCardState extends State<ProductCard>
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark 
-                                        ? Colors.white 
+                                    color: isDark
+                                        ? Colors.white
                                         : AppConstants.neutralDark,
                                     letterSpacing: -0.3,
                                   ),
@@ -212,8 +267,10 @@ class _ProductCardState extends State<ProductCard>
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        AppConstants.criticalStockColor.withOpacity(0.2),
-                                        AppConstants.criticalStockColor.withOpacity(0.1),
+                                        AppConstants.criticalStockColor
+                                            .withOpacity(0.2),
+                                        AppConstants.criticalStockColor
+                                            .withOpacity(0.1),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(8),
@@ -227,11 +284,12 @@ class _ProductCardState extends State<ProductCard>
                                         color: AppConstants.criticalStockColor,
                                       ),
                                       const SizedBox(width: 4),
-                                      const Text(
-                                        'Kritik',
-                                        style: TextStyle(
+                                      Text(
+                                        context.tr('critical'),
+                                        style: const TextStyle(
                                           fontSize: 11,
-                                          color: AppConstants.criticalStockColor,
+                                          color:
+                                              AppConstants.criticalStockColor,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -241,7 +299,7 @@ class _ProductCardState extends State<ProductCard>
                             ],
                           ),
                           const SizedBox(height: 8),
-                          
+
                           // Barcode
                           if (widget.product.barcode != null) ...[
                             Row(
@@ -249,7 +307,9 @@ class _ProductCardState extends State<ProductCard>
                                 Icon(
                                   Icons.qr_code_rounded,
                                   size: 15,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[500],
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -257,7 +317,9 @@ class _ProductCardState extends State<ProductCard>
                                     widget.product.barcode!,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
                                       fontWeight: FontWeight.w500,
                                     ),
                                     maxLines: 1,
@@ -268,7 +330,7 @@ class _ProductCardState extends State<ProductCard>
                             ),
                             const SizedBox(height: 6),
                           ],
-                          
+
                           // Stock Info
                           Row(
                             children: [
@@ -279,8 +341,11 @@ class _ProductCardState extends State<ProductCard>
                                 ),
                                 decoration: BoxDecoration(
                                   color: isCriticalStock
-                                      ? AppConstants.criticalStockColor.withOpacity(0.12)
-                                      : AppConstants.successColor.withOpacity(0.12),
+                                      ? AppConstants.criticalStockColor
+                                            .withOpacity(0.12)
+                                      : AppConstants.successColor.withOpacity(
+                                          0.12,
+                                        ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -295,7 +360,7 @@ class _ProductCardState extends State<ProductCard>
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'Stok: ${widget.product.stock}',
+                                      '${context.tr('stock')}: ${widget.product.stock}',
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -342,9 +407,9 @@ class _ProductCardState extends State<ProductCard>
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const Text(
-                            '₺',
-                            style: TextStyle(
+                          Text(
+                            context.watch<SettingsProvider>().currencySymbol,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppConstants.successColor,
@@ -393,9 +458,10 @@ class _ProductGridCardState extends State<ProductGridCard>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -404,10 +470,65 @@ class _ProductGridCardState extends State<ProductGridCard>
     super.dispose();
   }
 
+  Widget _buildProductImage(
+    String imagePath,
+    bool isCriticalStock, {
+    double size = 40,
+  }) {
+    final isNetworkImage =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
+    if (isNetworkImage) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(
+            Icons.inventory_2_rounded,
+            color: isCriticalStock
+                ? AppConstants.criticalStockColor
+                : AppConstants.primaryColor,
+            size: size,
+          );
+        },
+      );
+    } else {
+      final file = File(imagePath);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.inventory_2_rounded,
+              color: isCriticalStock
+                  ? AppConstants.criticalStockColor
+                  : AppConstants.primaryColor,
+              size: size,
+            );
+          },
+        );
+      } else {
+        return Icon(
+          Icons.inventory_2_rounded,
+          color: isCriticalStock
+              ? AppConstants.criticalStockColor
+              : AppConstants.primaryColor,
+          size: size,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isCriticalStock =
-        widget.product.stock <= AppConstants.criticalStockThreshold;
+        widget.product.stock <=
+        context.watch<SettingsProvider>().lowStockThreshold;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
@@ -417,10 +538,7 @@ class _ProductGridCardState extends State<ProductGridCard>
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -464,12 +582,18 @@ class _ProductGridCardState extends State<ProductGridCard>
                             end: Alignment.bottomRight,
                             colors: isCriticalStock
                                 ? [
-                                    AppConstants.criticalStockColor.withOpacity(0.15),
-                                    AppConstants.criticalStockColor.withOpacity(0.08),
+                                    AppConstants.criticalStockColor.withOpacity(
+                                      0.15,
+                                    ),
+                                    AppConstants.criticalStockColor.withOpacity(
+                                      0.08,
+                                    ),
                                   ]
                                 : [
                                     AppConstants.primaryColor.withOpacity(0.15),
-                                    AppConstants.secondaryColor.withOpacity(0.08),
+                                    AppConstants.secondaryColor.withOpacity(
+                                      0.08,
+                                    ),
                                   ],
                           ),
                           borderRadius: BorderRadius.circular(16),
@@ -480,20 +604,10 @@ class _ProductGridCardState extends State<ProductGridCard>
                               child: widget.product.imagePath != null
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
-                                      child: Image.network(
+                                      child: _buildProductImage(
                                         widget.product.imagePath!,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Icon(
-                                            Icons.inventory_2_rounded,
-                                            color: isCriticalStock
-                                                ? AppConstants.criticalStockColor
-                                                : AppConstants.primaryColor,
-                                            size: 40,
-                                          );
-                                        },
+                                        isCriticalStock,
+                                        size: 40,
                                       ),
                                     )
                                   : Icon(
@@ -526,7 +640,7 @@ class _ProductGridCardState extends State<ProductGridCard>
                       ),
                     ),
                     const SizedBox(height: 14),
-                    
+
                     // Product Name
                     Expanded(
                       flex: 2,
@@ -538,14 +652,16 @@ class _ProductGridCardState extends State<ProductGridCard>
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : AppConstants.neutralDark,
+                              color: isDark
+                                  ? Colors.white
+                                  : AppConstants.neutralDark,
                               letterSpacing: -0.2,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 8),
-                          
+
                           // Stock Badge
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -554,12 +670,14 @@ class _ProductGridCardState extends State<ProductGridCard>
                             ),
                             decoration: BoxDecoration(
                               color: isCriticalStock
-                                  ? AppConstants.criticalStockColor.withOpacity(0.12)
+                                  ? AppConstants.criticalStockColor.withOpacity(
+                                      0.12,
+                                    )
                                   : AppConstants.successColor.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'Stok: ${widget.product.stock}',
+                              '${context.tr('stock')}: ${widget.product.stock}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -570,7 +688,7 @@ class _ProductGridCardState extends State<ProductGridCard>
                             ),
                           ),
                           const Spacer(),
-                          
+
                           // Price
                           Container(
                             width: double.infinity,
@@ -588,7 +706,7 @@ class _ProductGridCardState extends State<ProductGridCard>
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
-                              '${widget.product.salePrice.toStringAsFixed(2)} ₺',
+                              '${context.watch<SettingsProvider>().currencySymbol}${widget.product.salePrice.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,

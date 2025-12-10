@@ -21,12 +21,12 @@ void main() async {
     overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
 
-  // Firebase'i başlat (opsiyonel - Firebase kullanılmayacaksa try-catch ile sarmalayın)
+  // Initialize Firebase (optional - wrapped in try-catch if Firebase won't be used)
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    // Firebase yapılandırılmamışsa devam et
-    debugPrint('Firebase başlatılamadı: $e');
+    // Continue if Firebase is not configured
+    debugPrint('Firebase initialization failed: $e');
   }
 
   runApp(const SmartStockApp());

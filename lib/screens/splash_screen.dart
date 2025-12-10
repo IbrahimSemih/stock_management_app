@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
+import '../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -53,7 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
           prefs.getBool(AppConstants.keyOnboardingCompleted) ?? false;
       final isLoggedIn = prefs.getBool(AppConstants.keyIsLoggedIn) ?? false;
 
-      debugPrint('Splash: onboardingCompleted=$onboardingCompleted, isLoggedIn=$isLoggedIn');
+      debugPrint(
+        'Splash: onboardingCompleted=$onboardingCompleted, isLoggedIn=$isLoggedIn',
+      );
 
       if (!mounted) {
         debugPrint('Splash: Widget not mounted after prefs read');
@@ -83,7 +86,10 @@ class _SplashScreenState extends State<SplashScreen>
       // Hata durumunda direkt login ekranına git
       if (mounted) {
         try {
-          await Navigator.pushReplacementNamed(context, AppConstants.routeLogin);
+          await Navigator.pushReplacementNamed(
+            context,
+            AppConstants.routeLogin,
+          );
         } catch (e2) {
           debugPrint('Error navigating to login: $e2');
         }
@@ -109,94 +115,104 @@ class _SplashScreenState extends State<SplashScreen>
       ),
       child: Scaffold(
         body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppConstants.primaryColor,
-              AppConstants.secondaryColor,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppConstants.primaryColor, AppConstants.secondaryColor],
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Background decoration
+              Positioned.fill(child: CustomPaint(painter: _SplashPainter())),
+              // Content
+              Center(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 140,
+                              height: 140,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 30,
+                                    spreadRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/icon/app_icon.png',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Fallback to icon if image fails to load
+                                    return Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.inventory_2_rounded,
+                                        size: 80,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              AppConstants.appName,
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: -1,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              context.tr('stock_management_system'),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white.withOpacity(0.9),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 64),
+                            SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
-        child: Stack(
-          children: [
-            // Background decoration
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _SplashPainter(),
-              ),
-            ),
-            // Content
-            Center(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _fadeAnimation.value,
-                    child: Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 30,
-                                  spreadRadius: 5,
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.inventory_2_rounded,
-                              size: 80,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            AppConstants.appName,
-                            style: const TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: -1,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Stok Yönetim Sistemi',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 64),
-                          SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  const AlwaysStoppedAnimation<Color>(Colors.white),
-                              strokeWidth: 3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
       ),
     );
   }

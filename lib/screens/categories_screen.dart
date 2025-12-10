@@ -8,6 +8,7 @@ import '../utils/app_icons.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/premium_widgets.dart';
+import '../l10n/app_localizations.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -23,7 +24,7 @@ class CategoriesScreen extends StatelessWidget {
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        appBar: const CustomAppBar(title: 'Kategoriler'),
+        appBar: CustomAppBar(title: context.tr('categories')),
         body: Consumer<CategoryProvider>(
           builder: (context, categoryProvider, _) {
             if (categoryProvider.categories.isEmpty) {
@@ -34,7 +35,7 @@ class CategoriesScreen extends StatelessWidget {
                     Icon(AppIcons.categories, size: 64, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
-                      'Henüz kategori eklenmemiş',
+                      context.tr('empty_categories'),
                       style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                   ],
@@ -55,7 +56,7 @@ class CategoriesScreen extends StatelessWidget {
         floatingActionButton: PremiumFABGroup(
           items: [
             PremiumFABItem(
-              text: 'Markalar',
+              text: context.tr('brands'),
               icon: Icons.business_rounded,
               gradient: const LinearGradient(
                 colors: [Color(0xFF7C3AED), Color(0xFF9333EA)],
@@ -66,7 +67,7 @@ class CategoriesScreen extends StatelessWidget {
               },
             ),
             PremiumFABItem(
-              text: 'Kategori Ekle',
+              text: context.tr('add_category'),
               icon: Icons.add_rounded,
               onPressed: () => _showAddCategoryDialog(context),
             ),
@@ -80,47 +81,47 @@ class CategoriesScreen extends StatelessWidget {
     final textController = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yeni Kategori'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('add_category')),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'Kategori adı',
-            labelText: 'Kategori Adı',
+          decoration: InputDecoration(
+            hintText: context.tr('category_name'),
+            labelText: context.tr('category_name'),
           ),
           autofocus: true,
           onSubmitted: (value) {
             if (value.trim().isNotEmpty) {
-              _addCategory(context, value.trim());
+              _addCategory(context, ctx, value.trim());
             }
           },
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               if (textController.text.trim().isNotEmpty) {
-                _addCategory(context, textController.text.trim());
+                _addCategory(context, ctx, textController.text.trim());
               }
             },
-            child: const Text('Ekle'),
+            child: Text(context.tr('add')),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _addCategory(BuildContext context, String name) async {
+  Future<void> _addCategory(BuildContext context, BuildContext dialogContext, String name) async {
     final category = Category(name: name);
     await context.read<CategoryProvider>().addCategory(category);
-    if (context.mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Kategori eklendi')));
+    if (dialogContext.mounted) {
+      Navigator.pop(dialogContext);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr('category_added'))),
+      );
     }
   }
 }
@@ -152,26 +153,26 @@ class _CategoryCard extends StatelessWidget {
           category.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('$productCount ürün'),
+        subtitle: Text('$productCount ${context.tr('items')}'),
         trailing: PopupMenuButton(
-          itemBuilder: (context) => [
+          itemBuilder: (ctx) => [
             PopupMenuItem(
               value: 'edit',
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(AppIcons.editProduct, size: 20),
-                  SizedBox(width: 8),
-                  Text('Düzenle'),
+                  const Icon(AppIcons.editProduct, size: 20),
+                  const SizedBox(width: 8),
+                  Text(context.tr('edit')),
                 ],
               ),
             ),
             PopupMenuItem(
               value: 'delete',
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Sil', style: TextStyle(color: Colors.red)),
+                  const Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(context.tr('delete'), style: const TextStyle(color: Colors.red)),
                 ],
               ),
             ),
@@ -192,20 +193,20 @@ class _CategoryCard extends StatelessWidget {
     final textController = TextEditingController(text: category.name);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Kategori Düzenle'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('edit_category')),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'Kategori adı',
-            labelText: 'Kategori Adı',
+          decoration: InputDecoration(
+            hintText: context.tr('category_name'),
+            labelText: context.tr('category_name'),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -217,15 +218,15 @@ class _CategoryCard extends StatelessWidget {
                 await context.read<CategoryProvider>().updateCategory(
                   updatedCategory,
                 );
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Kategori güncellendi')),
+                    SnackBar(content: Text(context.tr('category_updated'))),
                   );
                 }
               }
             },
-            child: const Text('Güncelle'),
+            child: Text(context.tr('update')),
           ),
         ],
       ),
@@ -235,29 +236,27 @@ class _CategoryCard extends StatelessWidget {
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Kategoriyi Sil'),
-        content: Text(
-          '${category.name} kategorisini silmek istediğinize emin misiniz?',
-        ),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('delete_category')),
+        content: Text(context.tr('delete_category_confirm')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           TextButton(
             onPressed: () async {
               await context.read<CategoryProvider>().deleteCategory(
                 category.id!,
               );
-              if (context.mounted) {
-                Navigator.pop(context);
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Kategori silindi')),
+                  SnackBar(content: Text(context.tr('category_deleted'))),
                 );
               }
             },
-            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+            child: Text(context.tr('delete'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

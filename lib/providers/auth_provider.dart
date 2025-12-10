@@ -48,7 +48,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signInWithEmailPassword(String email, String password) async {
     if (!_isFirebaseInitialized || _auth == null) {
-      _errorMessage = 'Firebase başlatılmamış. Lütfen offline kullan seçeneğini kullanın.';
+      _errorMessage = 'firebase_not_initialized';
+      notifyListeners();
       return false;
     }
 
@@ -72,12 +73,12 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorMessage(e.code);
+      _errorMessage = _getErrorKey(e.code);
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Bir hata oluştu: $e';
+      _errorMessage = 'error_generic';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -90,7 +91,8 @@ class AuthProvider with ChangeNotifier {
     String displayName,
   ) async {
     if (!_isFirebaseInitialized || _auth == null) {
-      _errorMessage = 'Firebase başlatılmamış. Lütfen offline kullan seçeneğini kullanın.';
+      _errorMessage = 'firebase_not_initialized';
+      notifyListeners();
       return false;
     }
 
@@ -116,12 +118,12 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorMessage(e.code);
+      _errorMessage = _getErrorKey(e.code);
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Bir hata oluştu: $e';
+      _errorMessage = 'error_generic';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -143,7 +145,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Bir hata oluştu: $e';
+      _errorMessage = 'error_generic';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -162,14 +164,15 @@ class AuthProvider with ChangeNotifier {
       _isOfflineMode = false;
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Çıkış yapılırken hata oluştu: $e';
+      _errorMessage = 'error_logout';
       notifyListeners();
     }
   }
 
   Future<bool> resetPassword(String email) async {
     if (!_isFirebaseInitialized || _auth == null) {
-      _errorMessage = 'Firebase başlatılmamış. Şifre sıfırlama özelliği kullanılamaz.';
+      _errorMessage = 'firebase_not_initialized_password';
+      notifyListeners();
       return false;
     }
 
@@ -184,44 +187,152 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorMessage(e.code);
+      _errorMessage = _getErrorKey(e.code);
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'Bir hata oluştu: $e';
+      _errorMessage = 'error_generic';
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  String _getErrorMessage(String code) {
+  String _getErrorKey(String code) {
     switch (code) {
       case 'weak-password':
-        return 'Şifre çok zayıf';
+        return 'error_weak_password';
       case 'email-already-in-use':
-        return 'Bu e-posta adresi zaten kullanılıyor';
+        return 'error_email_in_use';
       case 'user-not-found':
-        return 'Kullanıcı bulunamadı';
+        return 'error_user_not_found';
       case 'wrong-password':
-        return 'Yanlış şifre';
+        return 'error_wrong_password';
       case 'invalid-email':
-        return 'Geçersiz e-posta adresi';
+        return 'error_invalid_email';
       case 'user-disabled':
-        return 'Kullanıcı devre dışı bırakılmış';
+        return 'error_user_disabled';
       case 'too-many-requests':
-        return 'Çok fazla istek. Lütfen daha sonra tekrar deneyin';
+        return 'error_too_many_requests';
       case 'operation-not-allowed':
-        return 'Bu işlem izin verilmiyor';
+        return 'error_operation_not_allowed';
       default:
-        return 'Bir hata oluştu: $code';
+        return 'error_generic';
     }
   }
 
   Future<bool> checkAuthStatus() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(AppConstants.keyIsLoggedIn) ?? false;
+  }
+
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    if (!_isFirebaseInitialized || _auth == null || _user == null) {
+      _errorMessage = 'firebase_not_initialized';
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Re-authenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: _user!.email!,
+        password: currentPassword,
+      );
+      await _user!.reauthenticateWithCredential(credential);
+
+      // Update password
+      await _user!.updatePassword(newPassword);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorKey(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'error_generic';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount(String password) async {
+    if (!_isFirebaseInitialized || _auth == null || _user == null) {
+      _errorMessage = 'firebase_not_initialized';
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Re-authenticate user before deletion
+      final credential = EmailAuthProvider.credential(
+        email: _user!.email!,
+        password: password,
+      );
+      await _user!.reauthenticateWithCredential(credential);
+
+      // Delete user account
+      await _user!.delete();
+
+      // Clear local data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(AppConstants.keyIsLoggedIn, false);
+      await prefs.remove(AppConstants.keyUserEmail);
+      _user = null;
+      _isOfflineMode = false;
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorKey(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'error_generic';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> sendEmailVerification() async {
+    if (!_isFirebaseInitialized || _auth == null || _user == null) {
+      _errorMessage = 'firebase_not_initialized';
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _user!.sendEmailVerification();
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'error_generic';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }
 

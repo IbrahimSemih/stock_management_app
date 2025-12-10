@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/category_provider.dart';
@@ -10,6 +11,7 @@ import 'providers/stock_history_provider.dart';
 import 'utils/constants.dart';
 import 'routes.dart';
 import 'widgets/status_bar_wrapper.dart';
+import 'l10n/app_localizations.dart';
 
 class SmartStockApp extends StatelessWidget {
   const SmartStockApp({super.key});
@@ -18,7 +20,13 @@ class SmartStockApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = SettingsProvider();
+            provider.loadSettings();
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(
           create: (_) {
@@ -61,6 +69,14 @@ class SmartStockApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: settings.themeMode,
+            locale: settings.locale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             initialRoute: AppConstants.routeSplash,
             onGenerateRoute: AppRoutes.generateRoute,
             builder: (context, child) {

@@ -1,11 +1,11 @@
 {
-    "name": "stock_management",
-    "short_name": "stock_management",
+    "name": "SmartStock",
+    "short_name": "SmartStock",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "SmartStock - A modern inventory management application.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
+import '../l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,26 +14,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPage> _pages = [
+  List<OnboardingPage> _getPages(BuildContext context) => [
     OnboardingPage(
       icon: Icons.inventory_2,
-      title: 'Stok Yönetimi',
-      description:
-          'Ürünlerinizi kolayca takip edin, stok giriş ve çıkışlarını yönetin.',
+      title: context.tr('onboarding_title_1'),
+      description: context.tr('onboarding_desc_1'),
       color: AppConstants.primaryColor,
     ),
     OnboardingPage(
       icon: Icons.qr_code_scanner,
-      title: 'Barkod Tarama',
-      description:
-          'Barkod ve QR kod ile hızlıca ürün ekleyin ve stok güncellemesi yapın.',
+      title: context.tr('onboarding_title_2'),
+      description: context.tr('onboarding_desc_2'),
       color: AppConstants.secondaryColor,
     ),
     OnboardingPage(
       icon: Icons.analytics,
-      title: 'Raporlama',
-      description:
-          'Excel ve PDF formatında detaylı raporlar oluşturun ve dışa aktarın.',
+      title: context.tr('onboarding_title_3'),
+      description: context.tr('onboarding_desc_3'),
       color: AppConstants.accentColor,
     ),
   ];
@@ -62,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: _completeOnboarding,
-                child: const Text('Atla'),
+                child: Text(context.tr('skip')),
               ),
             ),
 
@@ -75,9 +73,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     _currentPage = index;
                   });
                 },
-                itemCount: _pages.length,
+                itemCount: _getPages(context).length,
                 itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
+                  return _buildPage(_getPages(context)[index]);
                 },
               ),
             ),
@@ -86,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                _getPages(context).length,
                 (index) => _buildIndicator(index == _currentPage),
               ),
             ),
@@ -115,9 +113,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                     ],
                   ),
-                  child: ElevatedButton(
+                    child: ElevatedButton(
                     onPressed: () {
-                      if (_currentPage == _pages.length - 1) {
+                      if (_currentPage == _getPages(context).length - 1) {
                         _completeOnboarding();
                       } else {
                         _pageController.nextPage(
@@ -132,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       shadowColor: Colors.transparent,
                     ),
                     child: Text(
-                      _currentPage == _pages.length - 1 ? 'Başlayalım' : 'İleri',
+                      _currentPage == _getPages(context).length - 1 ? context.tr('get_started') : context.tr('next'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

@@ -5,6 +5,7 @@ import '../providers/product_provider.dart';
 import '../models/brand.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
+import '../l10n/app_localizations.dart';
 
 class BrandsScreen extends StatelessWidget {
   const BrandsScreen({super.key});
@@ -12,7 +13,7 @@ class BrandsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Markalar'),
+      appBar: CustomAppBar(title: context.tr('brands')),
       body: Consumer<BrandProvider>(
         builder: (context, brandProvider, _) {
           if (brandProvider.brands.isEmpty) {
@@ -23,7 +24,7 @@ class BrandsScreen extends StatelessWidget {
                   Icon(Icons.branding_watermark, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Henüz marka eklenmemiş',
+                    context.tr('empty_brands'),
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
@@ -45,7 +46,7 @@ class BrandsScreen extends StatelessWidget {
         heroTag: 'brands_fab',
         onPressed: () => _showAddBrandDialog(context),
         icon: const Icon(AppIcons.add),
-        label: const Text('Marka Ekle'),
+        label: Text(context.tr('add_brand')),
       ),
     );
   }
@@ -54,54 +55,54 @@ class BrandsScreen extends StatelessWidget {
     final textController = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yeni Marka'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('add_brand')),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'Marka adı',
-            labelText: 'Marka Adı',
+          decoration: InputDecoration(
+            hintText: context.tr('brand_name'),
+            labelText: context.tr('brand_name'),
           ),
           autofocus: true,
           onSubmitted: (value) {
             if (value.trim().isNotEmpty) {
-              _addBrand(context, value.trim());
+              _addBrand(context, ctx, value.trim());
             }
           },
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () {
               if (textController.text.trim().isNotEmpty) {
-                _addBrand(context, textController.text.trim());
+                _addBrand(context, ctx, textController.text.trim());
               }
             },
-            child: const Text('Ekle'),
+            child: Text(context.tr('add')),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _addBrand(BuildContext context, String name) async {
+  Future<void> _addBrand(BuildContext context, BuildContext dialogContext, String name) async {
     try {
       final brand = Brand(name: name);
       await context.read<BrandProvider>().addBrand(brand);
-      if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Marka eklendi')));
+      if (dialogContext.mounted) {
+        Navigator.pop(dialogContext);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr('brand_added'))),
+        );
       }
     } catch (e) {
-      if (context.mounted) {
-        Navigator.pop(context);
+      if (dialogContext.mounted) {
+        Navigator.pop(dialogContext);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e')),
+          SnackBar(content: Text('${context.tr('error')}: $e')),
         );
       }
     }
@@ -135,26 +136,26 @@ class _BrandCard extends StatelessWidget {
           brand.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('$productCount ürün'),
+        subtitle: Text('$productCount ${context.tr('items')}'),
         trailing: PopupMenuButton(
-          itemBuilder: (context) => [
+          itemBuilder: (ctx) => [
             PopupMenuItem(
               value: 'edit',
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(AppIcons.editProduct, size: 20),
-                  SizedBox(width: 8),
-                  Text('Düzenle'),
+                  const Icon(AppIcons.editProduct, size: 20),
+                  const SizedBox(width: 8),
+                  Text(context.tr('edit')),
                 ],
               ),
             ),
             PopupMenuItem(
               value: 'delete',
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Sil', style: TextStyle(color: Colors.red)),
+                  const Icon(AppIcons.deleteProduct, size: 20, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(context.tr('delete'), style: const TextStyle(color: Colors.red)),
                 ],
               ),
             ),
@@ -175,20 +176,20 @@ class _BrandCard extends StatelessWidget {
     final textController = TextEditingController(text: brand.name);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Marka Düzenle'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('edit_brand')),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: 'Marka adı',
-            labelText: 'Marka Adı',
+          decoration: InputDecoration(
+            hintText: context.tr('brand_name'),
+            labelText: context.tr('brand_name'),
           ),
           autofocus: true,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -200,15 +201,15 @@ class _BrandCard extends StatelessWidget {
                 await context.read<BrandProvider>().updateBrand(
                   updatedBrand,
                 );
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Marka güncellendi')),
+                    SnackBar(content: Text(context.tr('brand_updated'))),
                   );
                 }
               }
             },
-            child: const Text('Güncelle'),
+            child: Text(context.tr('update')),
           ),
         ],
       ),
@@ -218,15 +219,13 @@ class _BrandCard extends StatelessWidget {
   void _showDeleteDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Markayı Sil'),
-        content: Text(
-          '${brand.name} markasını silmek istediğinize emin misiniz?',
-        ),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('delete_brand')),
+        content: Text(context.tr('delete_brand_confirm')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('cancel')),
           ),
           TextButton(
             onPressed: () async {
@@ -234,22 +233,22 @@ class _BrandCard extends StatelessWidget {
                 await context.read<BrandProvider>().deleteBrand(
                   brand.id!,
                 );
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Marka silindi')),
+                    SnackBar(content: Text(context.tr('brand_deleted'))),
                   );
                 }
               } catch (e) {
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Hata: $e')),
+                    SnackBar(content: Text('${context.tr('error')}: $e')),
                   );
                 }
               }
             },
-            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+            child: Text(context.tr('delete'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

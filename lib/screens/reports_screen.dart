@@ -9,8 +9,10 @@ import '../providers/product_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/brand_provider.dart';
 import '../providers/stock_history_provider.dart';
+import '../providers/settings_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_appbar.dart';
+import '../l10n/app_localizations.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -29,8 +31,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       await ExportService.shareFile(filePath);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Excel dosyası oluşturuldu ve paylaşıldı'),
+          SnackBar(
+            content: Text(context.tr('excel_created')),
             backgroundColor: Colors.green,
           ),
         );
@@ -52,12 +54,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Future<void> _exportToPDF() async {
     setState(() => _isExporting = true);
     try {
-      final filePath = await ExportService.exportToPDF();
+      final settings = context.read<SettingsProvider>();
+      final filePath = await ExportService.exportToPDF(
+        currencySymbol: settings.currencySymbol,
+      );
       await ExportService.shareFile(filePath);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('PDF dosyası oluşturuldu ve paylaşıldı'),
+          SnackBar(
+            content: Text(context.tr('pdf_created')),
             backgroundColor: Colors.green,
           ),
         );
@@ -83,8 +88,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       await ExportService.shareFile(backupPath);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Veritabanı yedeklendi'),
+          SnackBar(
+            content: Text(context.tr('database_backed_up')),
             backgroundColor: Colors.green,
           ),
         );
@@ -121,8 +126,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (!fileName.toLowerCase().endsWith('.db')) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lütfen .db uzantılı bir yedek dosyası seçin'),
+          SnackBar(
+            content: Text(context.tr('select_db_file')),
             backgroundColor: Colors.orange,
           ),
         );
@@ -134,22 +139,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Veritabanını Geri Yükle'),
-        content: const Text(
-          'Mevcut veritabanı silinecek ve seçilen yedek yüklenecek. Bu işlem geri alınamaz. Devam etmek istediğinize emin misiniz?',
-        ),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('restore_database')),
+        content: Text(context.tr('restore_warning')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('İptal'),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Geri Yükle'),
+            child: Text(context.tr('restore')),
           ),
         ],
       ),
@@ -178,10 +181,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         await context.read<StockHistoryProvider>().loadHistory();
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Veritabanı geri yüklendi ve yenilendi.'),
+          SnackBar(
+            content: Text(context.tr('database_restored')),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -215,8 +218,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        appBar: const CustomAppBar(
-          title: 'Raporlar ve Yedekleme',
+        appBar: CustomAppBar(
+          title: context.tr('reports'),
         ),
         body: _isExporting
           ? const Center(child: CircularProgressIndicator())
@@ -231,7 +234,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Dışa Aktarma',
+                          context.tr('export_section'),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -239,16 +242,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(height: 16),
                         _ReportActionCard(
                           icon: Icons.table_chart,
-                          title: 'Excel\'e Aktar',
-                          description: 'Tüm ürün listesini Excel formatında dışa aktar',
+                          title: context.tr('export_to_excel'),
+                          description: context.tr('export_to_excel_desc'),
                           color: AppConstants.successColor,
                           onTap: _exportToExcel,
                         ),
                         const SizedBox(height: 12),
                         _ReportActionCard(
                           icon: Icons.picture_as_pdf,
-                          title: 'PDF Rapor Oluştur',
-                          description: 'Stok raporunu PDF formatında oluştur',
+                          title: context.tr('export_to_pdf'),
+                          description: context.tr('export_to_pdf_desc'),
                           color: AppConstants.errorColor,
                           onTap: _exportToPDF,
                         ),
@@ -266,7 +269,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Stok Raporları',
+                          context.tr('stock_reports'),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -274,32 +277,32 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(height: 16),
                         _ReportActionCard(
                           icon: Icons.today,
-                          title: 'Günlük Stok Hareket Raporu',
-                          description: 'Bugünkü stok giriş ve çıkışlarını görüntüle',
+                          title: context.tr('daily_stock_report'),
+                          description: context.tr('daily_stock_report_desc'),
                           color: AppConstants.primaryColor,
                           onTap: () => _showDailyReport(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportActionCard(
                           icon: Icons.calendar_month,
-                          title: 'Aylık Stok Hareket Raporu',
-                          description: 'Bu ayın stok hareket raporunu görüntüle',
+                          title: context.tr('monthly_stock_report'),
+                          description: context.tr('monthly_stock_report_desc'),
                           color: AppConstants.secondaryColor,
                           onTap: () => _showMonthlyReport(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportActionCard(
                           icon: Icons.trending_up,
-                          title: 'En Çok Hareket Gören Ürünler',
-                          description: 'En fazla stok hareketi olan ürünleri listele',
+                          title: context.tr('most_active_products'),
+                          description: context.tr('most_active_products_desc'),
                           color: AppConstants.accentColor,
                           onTap: () => _showMostActiveProducts(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportActionCard(
                           icon: Icons.calculate,
-                          title: 'Stok Değeri Raporu',
-                          description: 'Toplam stok değerini hesapla (adet × alış fiyatı)',
+                          title: context.tr('stock_value_report'),
+                          description: context.tr('stock_value_report_desc'),
                           color: AppConstants.warningColor,
                           onTap: () => _showStockValueReport(context),
                         ),
@@ -317,7 +320,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Yedekleme',
+                          context.tr('backup_section'),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -325,16 +328,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(height: 16),
                         _ReportActionCard(
                           icon: Icons.backup,
-                          title: 'Veritabanını Yedekle',
-                          description: 'Tüm verilerinizin yedeğini alın',
+                          title: context.tr('backup_database'),
+                          description: context.tr('backup_database_desc'),
                           color: AppConstants.primaryColor,
                           onTap: _backupDatabase,
                         ),
                         const SizedBox(height: 12),
                         _ReportActionCard(
                           icon: Icons.restore,
-                          title: 'Veritabanını Geri Yükle',
-                          description: 'Daha önce aldığınız yedeği geri yükleyin',
+                          title: context.tr('restore_database'),
+                          description: context.tr('restore_database_desc'),
                           color: AppConstants.warningColor,
                           onTap: _restoreDatabase,
                         ),
@@ -355,7 +358,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Dışa aktarılan dosyalar paylaşım menüsü ile başka uygulamalara gönderilebilir.',
+                            context.tr('export_info'),
                             style: TextStyle(color: Colors.blue[900]),
                           ),
                         ),
@@ -380,14 +383,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => _StockReportDialog(
-        title: 'Günlük Stok Hareket Raporu',
+      builder: (ctx) => _StockReportDialog(
+        title: context.tr('daily_stock_report'),
         dateRange: DateTimeRange(
           start: DateTime.now().copyWith(hour: 0, minute: 0, second: 0),
           end: DateTime.now(),
         ),
         stockHistoryProvider: stockHistoryProvider,
         productProvider: productProvider,
+        parentContext: context,
       ),
     );
   }
@@ -404,14 +408,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => _StockReportDialog(
-        title: 'Aylık Stok Hareket Raporu',
+      builder: (ctx) => _StockReportDialog(
+        title: context.tr('monthly_stock_report'),
         dateRange: DateTimeRange(
           start: DateTime(now.year, now.month, 1),
           end: now,
         ),
         stockHistoryProvider: stockHistoryProvider,
         productProvider: productProvider,
+        parentContext: context,
       ),
     );
   }
@@ -427,15 +432,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => _MostActiveProductsDialog(
+      builder: (ctx) => _MostActiveProductsDialog(
         stockHistoryProvider: stockHistoryProvider,
         productProvider: productProvider,
+        parentContext: context,
       ),
     );
   }
 
   void _showStockValueReport(BuildContext context) {
     final productProvider = context.read<ProductProvider>();
+    final settings = context.read<SettingsProvider>();
     final products = productProvider.products;
     
     double totalValue = 0;
@@ -445,18 +452,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Stok Değeri Raporu'),
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('stock_value_report')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Toplam Ürün Sayısı: ${products.length}'),
+            Text('${context.tr('total_product_count')}: ${products.length}'),
             const SizedBox(height: 8),
-            Text('Toplam Stok Miktarı: ${products.fold<int>(0, (sum, p) => sum + p.stock)}'),
+            Text('${context.tr('total_stock_quantity')}: ${products.fold<int>(0, (sum, p) => sum + p.stock)}'),
             const SizedBox(height: 8),
             Text(
-              'Toplam Stok Değeri: ${totalValue.toStringAsFixed(2)} ₺',
+              '${context.tr('total_stock_value')}: ${settings.currencySymbol}${totalValue.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -467,7 +474,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const Divider(),
             const SizedBox(height: 8),
             Text(
-              'Hesaplama: Stok Miktarı × Alış Fiyatı',
+              context.tr('calculation_note'),
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],
@@ -478,8 +485,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Kapat'),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.tr('close')),
           ),
         ],
       ),
@@ -492,12 +499,14 @@ class _StockReportDialog extends StatelessWidget {
   final DateTimeRange dateRange;
   final StockHistoryProvider stockHistoryProvider;
   final ProductProvider productProvider;
+  final BuildContext parentContext;
 
   const _StockReportDialog({
     required this.title,
     required this.dateRange,
     required this.stockHistoryProvider,
     required this.productProvider,
+    required this.parentContext,
   });
 
   @override
@@ -531,7 +540,7 @@ class _StockReportDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Tarih Aralığı: ${DateFormat('dd/MM/yyyy').format(dateRange.start)} - ${DateFormat('dd/MM/yyyy').format(dateRange.end)}'),
+              Text('${parentContext.tr('date_range')}: ${DateFormat('dd/MM/yyyy').format(dateRange.start)} - ${DateFormat('dd/MM/yyyy').format(dateRange.end)}'),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -542,7 +551,7 @@ class _StockReportDialog extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
-                            const Text('Toplam Giriş', style: TextStyle(fontSize: 12)),
+                            Text(parentContext.tr('total_in'), style: const TextStyle(fontSize: 12)),
                             Text(
                               '$totalIn',
                               style: const TextStyle(
@@ -564,7 +573,7 @@ class _StockReportDialog extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
-                            const Text('Toplam Çıkış', style: TextStyle(fontSize: 12)),
+                            Text(parentContext.tr('total_out'), style: const TextStyle(fontSize: 12)),
                             Text(
                               '$totalOut',
                               style: const TextStyle(
@@ -582,7 +591,7 @@ class _StockReportDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Toplam Hareket: ${filteredHistory.length}',
+                '${parentContext.tr('total_movements')}: ${filteredHistory.length}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -592,7 +601,7 @@ class _StockReportDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Kapat'),
+          child: Text(parentContext.tr('close')),
         ),
       ],
     );
@@ -604,10 +613,12 @@ class _StockReportDialog extends StatelessWidget {
 class _MostActiveProductsDialog extends StatelessWidget {
   final StockHistoryProvider stockHistoryProvider;
   final ProductProvider productProvider;
+  final BuildContext parentContext;
 
   const _MostActiveProductsDialog({
     required this.stockHistoryProvider,
     required this.productProvider,
+    required this.parentContext,
   });
 
   @override
@@ -630,7 +641,7 @@ class _MostActiveProductsDialog extends StatelessWidget {
         final topProducts = sortedProducts.take(10).toList();
 
         return AlertDialog(
-          title: const Text('En Çok Hareket Gören Ürünler'),
+          title: Text(parentContext.tr('most_active_products')),
           content: Container(
             width: double.maxFinite,
             constraints: const BoxConstraints(maxHeight: 600),
@@ -639,9 +650,9 @@ class _MostActiveProductsDialog extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: topProducts.isEmpty
                     ? [
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('Henüz stok hareketi yok'),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(parentContext.tr('no_stock_movement')),
                         ),
                       ]
                     : topProducts.map((entry) {
@@ -675,9 +686,9 @@ class _MostActiveProductsDialog extends StatelessWidget {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${entry.value} hareket'),
+                                Text('${entry.value} ${parentContext.tr('movements')}'),
                                 Text(
-                                  'Stok: ${product.stock}',
+                                  '${parentContext.tr('stock')}: ${product.stock}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[600],
@@ -688,9 +699,9 @@ class _MostActiveProductsDialog extends StatelessWidget {
                             trailing: const Icon(Icons.expand_more),
                             children: [
                               if (productMovements.isEmpty)
-                                const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Text('Hareket geçmişi bulunamadı'),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(parentContext.tr('movement_history_not_found')),
                                 )
                               else
                                 ...productMovements.map((movement) {
@@ -746,7 +757,7 @@ class _MostActiveProductsDialog extends StatelessWidget {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    isIn ? 'Giriş' : 'Çıkış',
+                                                    isIn ? parentContext.tr('in_movement') : parentContext.tr('out_movement'),
                                                     style: TextStyle(
                                                       fontWeight: FontWeight.bold,
                                                       color: isIn
@@ -804,7 +815,7 @@ class _MostActiveProductsDialog extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Kapat'),
+              child: Text(parentContext.tr('close')),
             ),
           ],
         );

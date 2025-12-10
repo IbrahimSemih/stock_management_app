@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/premium_widgets.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -90,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppConstants.routeDashboard);
     } else if (mounted && authProvider.errorMessage != null) {
-      _showErrorSnackbar(authProvider.errorMessage!);
+      _showErrorSnackbar(context.tr(authProvider.errorMessage!));
     }
   }
 
@@ -107,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _handlePasswordReset() async {
     if (_emailController.text.isEmpty) {
-      _showErrorSnackbar('Lütfen e-posta adresinizi girin');
+      _showErrorSnackbar(context.tr('please_enter_email'));
       return;
     }
 
@@ -118,9 +119,9 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (mounted) {
       if (success) {
-        _showSuccessSnackbar('Şifre sıfırlama e-postası gönderildi');
+        _showSuccessSnackbar(context.tr('password_reset_sent'));
       } else {
-        _showErrorSnackbar(authProvider.errorMessage ?? 'Bir hata oluştu');
+        _showErrorSnackbar(context.tr(authProvider.errorMessage ?? 'error_occurred'));
       }
     }
   }
@@ -236,19 +237,19 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 32),
                             
                             // Submit Button
-                            _buildSubmitButton(),
+                            _buildSubmitButton(context),
                             const SizedBox(height: 28),
                             
                             // Divider
-                            _buildDivider(isDark),
+                            _buildDivider(context, isDark),
                             const SizedBox(height: 28),
                             
                             // Offline Button
-                            _buildOfflineButton(),
+                            _buildOfflineButton(context),
                             const SizedBox(height: 28),
                             
                             // Toggle Auth Mode
-                            _buildToggleButton(isDark),
+                            _buildToggleButton(context, isDark),
                             const SizedBox(height: 40),
                           ],
                         ),
@@ -355,16 +356,9 @@ class _LoginScreenState extends State<LoginScreen>
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(24),
+        width: 120,
+        height: 120,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF2563EB),
-              Color(0xFF7C3AED),
-            ],
-          ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -375,10 +369,33 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ],
         ),
-        child: const Icon(
-          AppIcons.appLogo,
-          size: 56,
-          color: Colors.white,
+        child: ClipOval(
+          child: Image.asset(
+            'assets/icon/app_icon.png',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback to icon if image fails to load
+              return Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF2563EB),
+                      Color(0xFF7C3AED),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  AppIcons.appLogo,
+                  size: 56,
+                  color: Colors.white,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -400,7 +417,7 @@ class _LoginScreenState extends State<LoginScreen>
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Text(
-            _isLogin ? 'Hesabınıza giriş yapın' : 'Yeni hesap oluşturun',
+            _isLogin ? context.tr('login_subtitle') : context.tr('register_subtitle'),
             key: ValueKey(_isLogin),
             style: TextStyle(
               fontSize: 16,
@@ -429,13 +446,13 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       _buildInputField(
                         controller: _nameController,
-                        label: 'Ad Soyad',
-                        hint: 'Adınızı girin',
+                        label: context.tr('full_name'),
+                        hint: context.tr('enter_name'),
                         icon: AppIcons.user,
                         isDark: isDark,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Lütfen adınızı girin';
+                            return context.tr('please_enter_name');
                           }
                           return null;
                         },
@@ -449,17 +466,17 @@ class _LoginScreenState extends State<LoginScreen>
         // Email field
         _buildInputField(
           controller: _emailController,
-          label: 'E-posta',
-          hint: 'ornek@email.com',
+          label: context.tr('email'),
+          hint: context.tr('email_placeholder'),
           icon: AppIcons.email,
           isDark: isDark,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Lütfen e-posta adresinizi girin';
+              return context.tr('required_field');
             }
             if (!value.contains('@')) {
-              return 'Geçerli bir e-posta adresi girin';
+              return context.tr('invalid_email');
             }
             return null;
           },
@@ -469,17 +486,17 @@ class _LoginScreenState extends State<LoginScreen>
         // Password field
         _buildInputField(
           controller: _passwordController,
-          label: 'Şifre',
+          label: context.tr('password'),
           hint: '••••••••',
           icon: AppIcons.password,
           isDark: isDark,
           isPassword: true,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Lütfen şifrenizi girin';
+              return context.tr('required_field');
             }
             if (!_isLogin && value.length < 6) {
-              return 'Şifre en az 6 karakter olmalıdır';
+              return context.tr('invalid_password');
             }
             return null;
           },
@@ -495,9 +512,9 @@ class _LoginScreenState extends State<LoginScreen>
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               ),
-              child: const Text(
-                'Şifremi Unuttum',
-                style: TextStyle(
+              child: Text(
+                context.tr('forgot_password'),
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -624,11 +641,11 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: PremiumButton(
-        text: _isLogin ? 'Giriş Yap' : 'Kayıt Ol',
+        text: _isLogin ? context.tr('login') : context.tr('register'),
         icon: _isLogin ? Icons.login_rounded : Icons.person_add_rounded,
         onPressed: _isLoading ? null : _handleSubmit,
         isLoading: _isLoading,
@@ -638,7 +655,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildDivider(bool isDark) {
+  Widget _buildDivider(BuildContext context, bool isDark) {
     return Row(
       children: [
         Expanded(
@@ -666,7 +683,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
             child: Text(
-              'veya',
+              context.tr('or'),
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
                 fontWeight: FontWeight.w600,
@@ -692,11 +709,11 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildOfflineButton() {
+  Widget _buildOfflineButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: PremiumButton(
-        text: 'Çevrimdışı Kullan',
+        text: context.tr('continue_offline'),
         icon: Icons.cloud_off_rounded,
         onPressed: _isLoading ? null : _handleOfflineLogin,
         isOutlined: true,
@@ -706,12 +723,12 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildToggleButton(bool isDark) {
+  Widget _buildToggleButton(BuildContext context, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          _isLogin ? 'Hesabınız yok mu?' : 'Zaten hesabınız var mı?',
+          _isLogin ? '' : '',
           style: TextStyle(
             color: isDark ? Colors.grey[400] : Colors.grey[600],
             fontWeight: FontWeight.w500,
@@ -728,7 +745,7 @@ class _LoginScreenState extends State<LoginScreen>
             padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
           child: Text(
-            _isLogin ? 'Kayıt Ol' : 'Giriş Yap',
+            _isLogin ? context.tr('register') : context.tr('login'),
             style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,

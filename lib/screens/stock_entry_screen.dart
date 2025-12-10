@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/product_provider.dart';
 import '../utils/constants.dart';
+import '../l10n/app_localizations.dart';
 
 class StockEntryScreen extends StatefulWidget {
   final int? productId;
@@ -130,7 +131,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isStockIn ? 'Stok Giriş' : 'Stok Çıkış'),
+        title: Text(isStockIn ? context.tr('stock_in') : context.tr('stock_out')),
       ),
       body: Form(
         key: _formKey,
@@ -142,7 +143,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
               DropdownButtonFormField<int>(
                 value: _selectedProductId,
                 decoration: InputDecoration(
-                  labelText: 'Ürün *',
+                  labelText: '${context.tr('product')} *',
                   prefixIcon: const Icon(Icons.inventory_2),
                   suffixIcon: _selectedProductId != null
                       ? IconButton(
@@ -158,7 +159,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
                 items: productProvider.products.map((product) {
                   return DropdownMenuItem<int>(
                     value: product.id,
-                    child: Text('${product.name} (Stok: ${product.stock})'),
+                    child: Text('${product.name} (${context.tr('stock')}: ${product.stock})'),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -168,7 +169,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
                 },
                 validator: (value) {
                   if (value == null) {
-                    return 'Lütfen bir ürün seçin';
+                    return context.tr('required_field');
                   }
                   return null;
                 },
@@ -183,7 +184,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
                     productProvider.findById(widget.productId!)?.name ?? '',
                   ),
                   subtitle: Text(
-                    'Mevcut Stok: ${productProvider.findById(widget.productId!)?.stock ?? 0}',
+                    '${context.tr('stock')}: ${productProvider.findById(widget.productId!)?.stock ?? 0}',
                   ),
                 ),
               ),
@@ -195,19 +196,19 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
               controller: _amountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Miktar *',
+                labelText: '${context.tr('quantity')} *',
                 prefixIcon: Icon(isStockIn ? Icons.add : Icons.remove),
                 helperText: widget.productId != null
-                    ? 'Mevcut stok: ${productProvider.findById(widget.productId!)?.stock ?? 0}'
+                    ? '${context.tr('stock')}: ${productProvider.findById(widget.productId!)?.stock ?? 0}'
                     : null,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Lütfen miktar girin';
+                  return context.tr('enter_valid_quantity');
                 }
                 final amount = int.tryParse(value);
                 if (amount == null || amount <= 0) {
-                  return 'Geçerli bir miktar girin';
+                  return context.tr('enter_valid_quantity');
                 }
                 return null;
               },
@@ -218,9 +219,9 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
             InkWell(
               onTap: () => _selectDate(context),
               child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Tarih *',
-                  prefixIcon: Icon(Icons.calendar_today),
+                decoration: InputDecoration(
+                  labelText: '${context.tr('date')} *',
+                  prefixIcon: const Icon(Icons.calendar_today),
                 ),
                 child: Text(
                   DateFormat(AppConstants.dateFormat).format(_selectedDate),
@@ -233,9 +234,9 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
             TextFormField(
               controller: _noteController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Not (Opsiyonel)',
-                prefixIcon: Icon(Icons.note),
+              decoration: InputDecoration(
+                labelText: context.tr('note'),
+                prefixIcon: const Icon(Icons.note),
                 alignLabelWithHint: true,
               ),
             ),
@@ -260,7 +261,7 @@ class _StockEntryScreenState extends State<StockEntryScreen> {
                       ),
                     )
                   : Text(
-                      isStockIn ? 'Stok Girişi Yap' : 'Stok Çıkışı Yap',
+                      isStockIn ? context.tr('add_stock') : context.tr('remove_stock'),
                       style: const TextStyle(fontSize: 16),
                     ),
             ),

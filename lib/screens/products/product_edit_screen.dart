@@ -6,10 +6,12 @@ import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/brand_provider.dart';
 import '../../providers/price_history_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../models/product.dart';
 import '../../models/category.dart';
 import '../../models/price_history.dart';
 import '../../utils/constants.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProductEditScreen extends StatefulWidget {
   final int? productId;
@@ -240,10 +242,11 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
     final brandProvider = context.watch<BrandProvider>();
+    final settings = context.watch<SettingsProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.productId != null ? 'Ürün Düzenle' : 'Ürün Ekle'),
+        title: Text(widget.productId != null ? context.tr('edit_product') : context.tr('add_product')),
         actions: [
           if (_isLoading)
             const Padding(
@@ -299,12 +302,12 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         ElevatedButton.icon(
                           onPressed: () => _pickImage(ImageSource.camera),
                           icon: const Icon(Icons.camera_alt),
-                          label: const Text('Kamera'),
+                          label: Text(context.tr('image')),
                         ),
                         ElevatedButton.icon(
                           onPressed: () => _pickImage(ImageSource.gallery),
                           icon: const Icon(Icons.photo_library),
-                          label: const Text('Galeri'),
+                          label: Text(context.tr('add_image')),
                         ),
                       ],
                     ),
@@ -317,13 +320,13 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             // Name
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Ürün Adı *',
-                prefixIcon: Icon(Icons.inventory_2),
+              decoration: InputDecoration(
+                labelText: '${context.tr('product_name')} *',
+                prefixIcon: const Icon(Icons.inventory_2),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Lütfen ürün adını girin';
+                  return context.tr('enter_product_name');
                 }
                 return null;
               },
@@ -334,7 +337,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             TextFormField(
               controller: _barcodeController,
               decoration: InputDecoration(
-                labelText: 'Barkod',
+                labelText: context.tr('barcode'),
                 prefixIcon: const Icon(Icons.qr_code),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
@@ -369,9 +372,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                 
                 return DropdownButtonFormField<int>(
                   value: selectedValue,
-                  decoration: const InputDecoration(
-                    labelText: 'Kategori *',
-                    prefixIcon: Icon(Icons.category),
+                  decoration: InputDecoration(
+                    labelText: '${context.tr('category')} *',
+                    prefixIcon: const Icon(Icons.category),
                   ),
                   items: validCategories.map((category) {
                     return DropdownMenuItem<int>(
@@ -386,7 +389,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                   },
                   validator: (value) {
                     if (value == null) {
-                      return 'Lütfen bir kategori seçin';
+                      return context.tr('select_category_first');
                     }
                     return null;
                   },
@@ -404,14 +407,14 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                 
                 return DropdownButtonFormField<int>(
                   value: _selectedBrandId,
-                  decoration: const InputDecoration(
-                    labelText: 'Marka',
-                    prefixIcon: Icon(Icons.branding_watermark),
+                  decoration: InputDecoration(
+                    labelText: context.tr('brand'),
+                    prefixIcon: const Icon(Icons.branding_watermark),
                   ),
                   items: [
-                    const DropdownMenuItem<int>(
+                    DropdownMenuItem<int>(
                       value: null,
-                      child: Text('Marka Seçiniz'),
+                      child: Text(context.tr('select_brand')),
                     ),
                     ...validBrands.map((brand) {
                       return DropdownMenuItem<int>(
@@ -433,9 +436,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             // Model
             TextFormField(
               controller: _modelController,
-              decoration: const InputDecoration(
-                labelText: 'Model',
-                prefixIcon: Icon(Icons.model_training),
+              decoration: InputDecoration(
+                labelText: context.tr('model'),
+                prefixIcon: const Icon(Icons.model_training),
               ),
             ),
             const SizedBox(height: 16),
@@ -444,16 +447,16 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             TextFormField(
               controller: _stockController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Stok Miktarı *',
-                prefixIcon: Icon(Icons.inventory_2),
+              decoration: InputDecoration(
+                labelText: '${context.tr('stock_quantity')} *',
+                prefixIcon: const Icon(Icons.inventory_2),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Lütfen stok miktarını girin';
+                  return context.tr('enter_valid_quantity');
                 }
                 if (int.tryParse(value) == null) {
-                  return 'Geçerli bir sayı girin';
+                  return context.tr('enter_valid_quantity');
                 }
                 return null;
               },
@@ -464,17 +467,17 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             TextFormField(
               controller: _purchasePriceController,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Alış Fiyatı *',
-                prefixIcon: Icon(Icons.shopping_bag),
-                suffixText: '₺',
+              decoration: InputDecoration(
+                labelText: '${context.tr('purchase_price')} *',
+                prefixIcon: const Icon(Icons.shopping_bag),
+                suffixText: settings.currencySymbol,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Lütfen alış fiyatını girin';
+                  return context.tr('enter_valid_price');
                 }
                 if (double.tryParse(value) == null) {
-                  return 'Geçerli bir fiyat girin';
+                  return context.tr('enter_valid_price');
                 }
                 return null;
               },
@@ -485,17 +488,17 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             TextFormField(
               controller: _salePriceController,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Satış Fiyatı *',
-                prefixIcon: Icon(Icons.sell),
-                suffixText: '₺',
+              decoration: InputDecoration(
+                labelText: '${context.tr('sale_price')} *',
+                prefixIcon: const Icon(Icons.sell),
+                suffixText: settings.currencySymbol,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Lütfen satış fiyatını girin';
+                  return context.tr('enter_valid_price');
                 }
                 if (double.tryParse(value) == null) {
-                  return 'Geçerli bir fiyat girin';
+                  return context.tr('enter_valid_price');
                 }
                 return null;
               },
@@ -506,9 +509,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             TextFormField(
               controller: _descriptionController,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Açıklama',
-                prefixIcon: Icon(Icons.description),
+              decoration: InputDecoration(
+                labelText: context.tr('description'),
+                prefixIcon: const Icon(Icons.description),
                 alignLabelWithHint: true,
               ),
             ),
@@ -526,7 +529,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(widget.productId != null ? 'Güncelle' : 'Kaydet'),
+                  : Text(widget.productId != null ? context.tr('update') : context.tr('save')),
             ),
           ],
         ),

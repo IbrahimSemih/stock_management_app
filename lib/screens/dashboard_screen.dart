@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/settings_provider.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/premium_widgets.dart';
+import '../l10n/app_localizations.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -14,7 +16,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -23,49 +25,48 @@ class DashboardScreen extends StatelessWidget {
       ),
       child: Scaffold(
         body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await context.read<ProductProvider>().loadAllProducts();
-            await context.read<CategoryProvider>().loadCategories();
-          },
-          color: AppConstants.primaryColor,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              // Premium App Bar
-              SliverToBoxAdapter(child: _buildHeader(context)),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await context.read<ProductProvider>().loadAllProducts();
+              await context.read<CategoryProvider>().loadCategories();
+            },
+            color: AppConstants.primaryColor,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // Premium App Bar
+                SliverToBoxAdapter(child: _buildHeader(context)),
 
-              // Content
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    // Welcome Banner
-                    _buildWelcomeBanner(context),
-                    const SizedBox(height: 28),
+                // Content
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      // Welcome Banner
+                      _buildWelcomeBanner(context),
+                      const SizedBox(height: 28),
 
-                    // Stats Section
-                    _buildStatsSection(context),
-                    const SizedBox(height: 28),
+                      // Stats Section
+                      _buildStatsSection(context),
+                      const SizedBox(height: 28),
 
-                    // Quick Actions
-                    _buildQuickActionsSection(context),
-                    const SizedBox(height: 28),
+                      // Quick Actions
+                      _buildQuickActionsSection(context),
+                      const SizedBox(height: 28),
 
-                    // Recent Products
-                    _buildRecentProductsSection(context),
-                    const SizedBox(height: 28),
+                      // Recent Products
+                      _buildRecentProductsSection(context),
+                      const SizedBox(height: 28),
 
-                    // Critical Stock
-                    _buildCriticalStockSection(context),
-                  ]),
+                      // Critical Stock
+                      _buildCriticalStockSection(context),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        ),
-        drawer: _buildPremiumDrawer(context),
       ),
     );
   }
@@ -78,11 +79,15 @@ class DashboardScreen extends StatelessWidget {
       child: Row(
         children: [
           // Menu Button
-          Builder(
-            builder: (context) => PremiumIconButton(
-              icon: Icons.menu_rounded,
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
+          PremiumIconButton(
+            icon: Icons.menu_rounded,
+            onPressed: () {
+              // MainNavigation'ın drawer'ını aç
+              final scaffold = Scaffold.maybeOf(context);
+              if (scaffold?.hasDrawer ?? false) {
+                scaffold?.openDrawer();
+              }
+            },
           ),
           const SizedBox(width: 16),
 
@@ -101,7 +106,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _getGreeting(),
+                  _getGreeting(context),
                   style: TextStyle(
                     fontSize: 14,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -160,9 +165,9 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Ayarlar',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Text(
+                      context.tr('settings'),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -186,9 +191,9 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Çıkış Yap',
-                      style: TextStyle(
+                    Text(
+                      context.tr('logout'),
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppConstants.errorColor,
                       ),
@@ -212,11 +217,11 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  String _getGreeting() {
+  String _getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Günaydın! ☀️';
-    if (hour < 18) return 'İyi günler! 🌤️';
-    return 'İyi akşamlar! 🌙';
+    if (hour < 12) return context.tr('good_morning');
+    if (hour < 18) return context.tr('good_afternoon');
+    return context.tr('good_evening');
   }
 
   Widget _buildWelcomeBanner(BuildContext context) {
@@ -313,9 +318,9 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Hoş Geldiniz! 👋',
-                style: TextStyle(
+              Text(
+                '${context.tr('welcome')}! 👋',
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -324,7 +329,7 @@ class DashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Stok yönetiminizi akıllıca yönetin',
+                context.tr('app_slogan'),
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white.withOpacity(0.9),
@@ -340,6 +345,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildStatsSection(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final settings = context.watch<SettingsProvider>();
     final products = productProvider.products;
 
     final totalProducts = products.length;
@@ -348,13 +354,13 @@ class DashboardScreen extends StatelessWidget {
       (sum, product) => sum + product.stock,
     );
     final criticalProducts = products
-        .where((p) => p.stock <= AppConstants.criticalStockThreshold)
+        .where((p) => p.stock <= settings.lowStockThreshold)
         .length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PremiumSectionHeader(title: 'Genel Bakış'),
+        PremiumSectionHeader(title: context.tr('dashboard')),
         const SizedBox(height: 16),
         SizedBox(
           height: 160,
@@ -363,7 +369,7 @@ class DashboardScreen extends StatelessWidget {
               Expanded(
                 child: PremiumStatCard(
                   icon: AppIcons.products,
-                  title: 'Toplam Ürün',
+                  title: context.tr('total_products'),
                   value: totalProducts.toString(),
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
@@ -408,7 +414,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Stok',
+                                  context.tr('stock'),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.white.withOpacity(0.9),
@@ -475,7 +481,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Kritik',
+                                  context.tr('critical_stock'),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.white.withOpacity(0.9),
@@ -511,7 +517,7 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PremiumSectionHeader(title: 'Hızlı İşlemler'),
+        PremiumSectionHeader(title: context.tr('quick_actions')),
         const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
@@ -523,8 +529,8 @@ class DashboardScreen extends StatelessWidget {
           children: [
             PremiumActionCard(
               icon: AppIcons.addProduct,
-              title: 'Ürün Ekle',
-              subtitle: 'Yeni ürün ekle',
+              title: context.tr('add_product'),
+              subtitle: context.tr('add_first_product'),
               color: AppConstants.primaryColor,
               onTap: () {
                 Navigator.pushNamed(
@@ -536,8 +542,8 @@ class DashboardScreen extends StatelessWidget {
             ),
             PremiumActionCard(
               icon: AppIcons.stockIn,
-              title: 'Stok Giriş',
-              subtitle: 'Stok artır',
+              title: context.tr('stock_in'),
+              subtitle: context.tr('add_stock'),
               color: AppConstants.successColor,
               onTap: () {
                 Navigator.pushNamed(
@@ -549,8 +555,8 @@ class DashboardScreen extends StatelessWidget {
             ),
             PremiumActionCard(
               icon: AppIcons.stockOut,
-              title: 'Stok Çıkış',
-              subtitle: 'Stok azalt',
+              title: context.tr('stock_out'),
+              subtitle: context.tr('remove_stock'),
               color: AppConstants.warningColor,
               onTap: () {
                 Navigator.pushNamed(
@@ -562,8 +568,8 @@ class DashboardScreen extends StatelessWidget {
             ),
             PremiumActionCard(
               icon: AppIcons.barcode,
-              title: 'Barkod Tara',
-              subtitle: 'Hızlı tarama',
+              title: context.tr('scan_barcode'),
+              subtitle: context.tr('barcode'),
               color: AppConstants.accentColor,
               onTap: () {
                 Navigator.pushNamed(context, AppConstants.routeBarcodeScan);
@@ -577,15 +583,16 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildRecentProductsSection(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final settings = context.watch<SettingsProvider>();
     final products = productProvider.products;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (products.isEmpty) {
       return PremiumEmptyState(
         icon: AppIcons.products,
-        title: 'Henüz ürün yok',
-        subtitle: 'İlk ürününüzü ekleyerek başlayın',
-        actionText: 'Ürün Ekle',
+        title: context.tr('no_products'),
+        subtitle: context.tr('add_first_product'),
+        actionText: context.tr('add_product'),
         onAction: () {
           Navigator.pushNamed(
             context,
@@ -602,8 +609,8 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PremiumSectionHeader(
-          title: 'Son Eklenenler',
-          actionText: 'Tümünü Gör',
+          title: context.tr('recent_products'),
+          actionText: context.tr('see_all'),
           actionIcon: Icons.arrow_forward_rounded,
           onActionTap: () {
             Navigator.pushNamed(context, AppConstants.routeProducts);
@@ -686,7 +693,7 @@ class DashboardScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Stok: ${product.stock}',
+                              '${context.tr('stock')}: ${product.stock}',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[600],
@@ -715,7 +722,7 @@ class DashboardScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${product.salePrice.toStringAsFixed(2)} ₺',
+                      '${settings.currencySymbol}${product.salePrice.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -734,11 +741,12 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildCriticalStockSection(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final settings = context.watch<SettingsProvider>();
     final products = productProvider.products;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final criticalProducts = products
-        .where((p) => p.stock <= AppConstants.criticalStockThreshold)
+        .where((p) => p.stock <= settings.lowStockThreshold)
         .toList();
 
     if (criticalProducts.isEmpty) {
@@ -749,7 +757,7 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PremiumSectionHeader(
-          title: 'Kritik Stok',
+          title: context.tr('critical_stock'),
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -857,7 +865,7 @@ class DashboardScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      'Stok: ${product.stock}',
+                                      '${context.tr('stock')}: ${product.stock}',
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: AppConstants.criticalStockColor,
@@ -904,22 +912,22 @@ class DashboardScreen extends StatelessWidget {
                                 );
                               },
                               borderRadius: BorderRadius.circular(12),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 10,
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.add_rounded,
                                       color: Colors.white,
                                       size: 18,
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
-                                      'Ekle',
-                                      style: TextStyle(
+                                      context.tr('add'),
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -940,246 +948,6 @@ class DashboardScreen extends StatelessWidget {
           );
         }),
       ],
-    );
-  }
-
-  Widget _buildPremiumDrawer(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Drawer(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
-      child: Column(
-        children: [
-          // Premium Drawer Header
-          Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 20,
-              left: 24,
-              right: 24,
-              bottom: 24,
-            ),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        AppIcons.appLogo,
-                        size: 28,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'v${AppConstants.appVersion}',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  AppConstants.appName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Akıllı Stok Yönetimi',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Menu Items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              children: [
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.dashboard,
-                  title: 'Dashboard',
-                  isSelected: true,
-                  onTap: () => Navigator.pop(context),
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.products,
-                  title: 'Ürünler',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppConstants.routeProducts);
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.categories,
-                  title: 'Kategoriler',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppConstants.routeCategories);
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.business_rounded,
-                  title: 'Markalar',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppConstants.routeBrands);
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.reports,
-                  title: 'Raporlar',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppConstants.routeReports);
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.history_rounded,
-                  title: 'Stok Geçmişi',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(
-                      context,
-                      AppConstants.routeStockHistory,
-                    );
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Divider(),
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.settings,
-                  title: 'Ayarlar',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppConstants.routeSettings);
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: AppIcons.logout,
-                  title: 'Çıkış Yap',
-                  isDestructive: true,
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await context.read<AuthProvider>().signOut();
-                    if (context.mounted) {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppConstants.routeLogin,
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    bool isSelected = false,
-    bool isDestructive = false,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDestructive
-        ? AppConstants.errorColor
-        : isSelected
-        ? AppConstants.primaryColor
-        : (isDark ? Colors.grey[400] : Colors.grey[700]);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? AppConstants.primaryColor.withOpacity(0.1)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppConstants.primaryColor.withOpacity(0.15)
-                : (isDestructive
-                      ? AppConstants.errorColor.withOpacity(0.1)
-                      : Colors.transparent),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: color, size: 22),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-            fontSize: 15,
-          ),
-        ),
-        trailing: isSelected
-            ? Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: AppConstants.primaryColor,
-                  shape: BoxShape.circle,
-                ),
-              )
-            : null,
-      ),
     );
   }
 }

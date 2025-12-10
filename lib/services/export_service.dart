@@ -74,7 +74,7 @@ class ExportService {
   }
 
   // PDF Export
-  static Future<String> exportToPDF() async {
+  static Future<String> exportToPDF({String currencySymbol = '₺'}) async {
     // Türkçe karakter desteği için Google Fonts yükle
     final regularFont = await PdfGoogleFonts.notoSansRegular();
     final boldFont = await PdfGoogleFonts.notoSansBold();
@@ -198,7 +198,7 @@ class ExportService {
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(8),
                       child: pw.Text(
-                        '${(product['salePrice'] as double).toStringAsFixed(2)} ₺',
+                        '$currencySymbol${(product['salePrice'] as double).toStringAsFixed(2)}',
                         style: normalStyle,
                       ),
                     ),
