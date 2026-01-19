@@ -1,4 +1,4 @@
-package com.example.stock_management
+package com.devisb.stock_management
 
 import io.flutter.embedding.android.FlutterActivity
 
