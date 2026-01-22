@@ -400,36 +400,46 @@ class DashboardScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   AppIcons.faShoppingCart,
                                   color: Colors.white.withOpacity(0.9),
-                                  size: 20,
+                                  size: 18,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  context.tr('stock'),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontWeight: FontWeight.w600,
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    context.tr('stock'),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Text(
                               totalStock.toString(),
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
+                                height: 1.2,
                               ),
                             ),
                           ],
@@ -467,36 +477,46 @@ class DashboardScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   AppIcons.criticalStock,
                                   color: Colors.white.withOpacity(0.9),
-                                  size: 20,
+                                  size: 18,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  context.tr('critical_stock'),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontWeight: FontWeight.w600,
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    context.tr('critical_stock'),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.2,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Text(
                               criticalProducts.toString(),
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
+                                height: 1.2,
                               ),
                             ),
                           ],

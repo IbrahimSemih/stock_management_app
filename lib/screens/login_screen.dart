@@ -95,16 +95,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Future<void> _handleOfflineLogin() async {
-    setState(() => _isLoading = true);
-    final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.signInOffline();
-    setState(() => _isLoading = false);
-
-    if (success && mounted) {
-      Navigator.pushReplacementNamed(context, AppConstants.routeDashboard);
-    }
-  }
 
   Future<void> _handlePasswordReset() async {
     if (_emailController.text.isEmpty) {
@@ -238,15 +228,7 @@ class _LoginScreenState extends State<LoginScreen>
                             
                             // Submit Button
                             _buildSubmitButton(context),
-                            const SizedBox(height: 28),
-                            
-                            // Divider
-                            _buildDivider(context, isDark),
-                            const SizedBox(height: 28),
-                            
-                            // Offline Button
-                            _buildOfflineButton(context),
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 32),
                             
                             // Toggle Auth Mode
                             _buildToggleButton(context, isDark),
@@ -650,74 +632,6 @@ class _LoginScreenState extends State<LoginScreen>
         onPressed: _isLoading ? null : _handleSubmit,
         isLoading: _isLoading,
         height: 60,
-        borderRadius: 18,
-      ),
-    );
-  }
-
-  Widget _buildDivider(BuildContext context, bool isDark) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1.5,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-              ),
-            ),
-            child: Text(
-              context.tr('or'),
-              style: TextStyle(
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1.5,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOfflineButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: PremiumButton(
-        text: context.tr('continue_offline'),
-        icon: Icons.cloud_off_rounded,
-        onPressed: _isLoading ? null : _handleOfflineLogin,
-        isOutlined: true,
-        height: 58,
         borderRadius: 18,
       ),
     );

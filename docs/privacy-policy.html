@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStock - Gizlilik Politikası</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563EB;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        h2 {
+            color: #1E40AF;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #3B82F6;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .last-updated {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        .contact {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gizlilik Politikası</h1>
+        <p class="last-updated">Son Güncelleme: <span id="date"></span></p>
+
+        <h2>1. Giriş</h2>
+        <p>
+            SmartStock mobil uygulamasına ("Uygulama") hoş geldiniz. Bu Gizlilik Politikası ("Politika"), 
+            SmartStock'u kullandığınızda kişisel verilerinizin toplanması, işlenmesi, saklanması ve korunması 
+            ile ilgili haklarınız ve yükümlülüklerimiz hakkında bilgi vermektedir. Bu Politika, 6698 sayılı 
+            Kişisel Verilerin Korunması Kanunu ("KVKK") ve ilgili mevzuat hükümlerine uygun olarak hazırlanmıştır.
+        </p>
+        <p>
+            Uygulamayı kullanarak, bu Gizlilik Politikasını okuduğunuzu, anladığınızı ve kabul ettiğinizi 
+            beyan edersiniz. Bu Politikayı kabul etmiyorsanız, lütfen Uygulamayı kullanmayın.
+        </p>
+
+        <h2>2. Toplanan Kişisel Veriler</h2>
+        <p>
+            Uygulama, işlevselliğini sağlamak amacıyla aşağıda belirtilen kategorilerde kişisel verilerinizi 
+            toplayabilir. Veri toplama işlemleri, KVKK ve ilgili mevzuat hükümlerine uygun olarak gerçekleştirilmektedir.
+        </p>
+        
+        <h3>2.1 Kimlik ve İletişim Bilgileri</h3>
+        <ul>
+            <li><strong>E-posta Adresi:</strong> Hesap oluşturma ve kimlik doğrulama amacıyla (Firebase Authentication kullanılıyorsa - isteğe bağlı)</li>
+            <li><strong>Şifre:</strong> Hesap güvenliği için (Firebase Authentication tarafından şifrelenmiş olarak saklanır)</li>
+            <li><strong>Görünen Ad:</strong> Profil bilgisi olarak (isteğe bağlı)</li>
+            <li><strong>Telefon Numarası:</strong> İletişim amacıyla (isteğe bağlı)</li>
+            <li><strong>Şirket Adı:</strong> İş bilgisi olarak (isteğe bağlı)</li>
+        </ul>
+
+        <h3>2.2 İşletme ve Envanter Verileri</h3>
+        <ul>
+            <li><strong>Ürün Bilgileri:</strong> Ürün adları, açıklamalar, fiyatlar, stok miktarları, görseller, barkodlar</li>
+            <li><strong>Stok Hareketleri:</strong> Stok girişleri, stok çıkışları, stok geçmişi kayıtları</li>
+            <li><strong>Kategori ve Marka Bilgileri:</strong> Ürün organizasyonu için kullanılan veriler</li>
+            <li><strong>Rapor Verileri:</strong> Oluşturulan raporlar ve analiz verileri</li>
+        </ul>
+
+        <h3>2.3 Kullanım ve Tercih Verileri</h3>
+        <ul>
+            <li><strong>Uygulama Ayarları:</strong> Tema tercihleri, para birimi, düşük stok eşik değerleri</li>
+            <li><strong>Bildirim Tercihleri:</strong> Kullanıcı bildirim ayarları</li>
+            <li><strong>Dil Tercihi:</strong> Uygulama dil ayarı</li>
+        </ul>
+
+        <h3>2.4 Otomatik Olarak Toplanan Veriler</h3>
+        <p>
+            Uygulama, işlevselliğini sağlamak amacıyla aşağıdaki verileri otomatik olarak toplayabilir. 
+            Bu veriler yalnızca cihazınızda yerel olarak saklanır ve üçüncü taraflarla paylaşılmaz:
+        </p>
+        <ul>
+            <li>Uygulama kullanım verileri ve kullanıcı tercihleri</li>
+            <li>Cihaz bilgileri (uygulama performansı ve işlevselliği için gerekli minimum bilgiler)</li>
+            <li>Stok hareket geçmişi ve rapor oluşturma verileri</li>
+        </ul>
+
+        <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
+        <p>
+            KVKK'nın 5. ve 6. maddeleri uyarınca, toplanan kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:
+        </p>
+        <ul>
+            <li><strong>Hizmet Sunumu:</strong> Uygulama işlevselliğini sağlamak, envanter ve ürün yönetimi hizmetlerini sunmak</li>
+            <li><strong>Kimlik Doğrulama:</strong> Hesap güvenliğini sağlamak ve yetkisiz erişimi önlemek (Firebase Authentication kullanılıyorsa - isteğe bağlı)</li>
+            <li><strong>Stok Yönetimi:</strong> Stok seviyelerini izlemek, kritik stok uyarıları sağlamak ve stok hareketlerini kaydetmek</li>
+            <li><strong>Raporlama:</strong> PDF ve Excel formatlarında raporlar oluşturmak ve veri analizi yapmak</li>
+            <li><strong>Özellik Geliştirme:</strong> Barkod/QR kod tarama, kategori yönetimi gibi uygulama özelliklerini sağlamak</li>
+            <li><strong>Kullanıcı Deneyimi:</strong> Kullanıcı tercihlerini kaydetmek ve kişiselleştirilmiş deneyim sunmak</li>
+            <li><strong>Yasal Yükümlülükler:</strong> Yasal gerekliliklerin yerine getirilmesi</li>
+        </ul>
+
+        <h2>4. Kişisel Verilerin Saklanması ve Muhafazası</h2>
+        <h3>4.1 Yerel Veri Depolama</h3>
+        <p>
+            KVKK'nın 12. maddesi uyarınca, kişisel verileriniz öncelikle cihazınızda SQLite veritabanı 
+            kullanılarak yerel olarak saklanmaktadır. Bu kapsamda:
+        </p>
+        <ul>
+            <li>Tüm ürün bilgileri, stok kayıtları, stok geçmişi, kategoriler, markalar, ayarlar ve kullanıcı tercihleri cihazınızda saklanır</li>
+            <li>Veriler yalnızca cihazınızda bulunur ve internet bağlantısı gerektirmez</li>
+            <li>Uygulama tam işlevsel olarak çevrimdışı modda çalışabilir</li>
+            <li>Verilerinizin güvenliği cihazınızın güvenlik ayarlarına bağlıdır</li>
+        </ul>
+
+        <h3>4.2 Bulut Veri Depolama (İsteğe Bağlı)</h3>
+        <p>
+            Firebase Authentication hizmetini kullanmayı seçerseniz (tamamen isteğe bağlıdır), aşağıdaki 
+            durumlar geçerlidir:
+        </p>
+        <ul>
+            <li><strong>Kimlik Doğrulama Verileri:</strong> E-posta adresi ve şifre bilgileriniz Firebase Authentication 
+                sunucularında güvenli bir şekilde saklanır. Şifreler hash'lenmiş formatta saklanır ve asla düz metin olarak erişilemez.</li>
+            <li><strong>Ürün ve Envanter Verileri:</strong> Ürün bilgileriniz, stok kayıtlarınız ve envanter verileriniz 
+                yalnızca cihazınızda saklanır ve bulut sunucularına yüklenmez.</li>
+            <li><strong>Güvenlik Standartları:</strong> Firebase, GDPR, KVKK ve diğer uluslararası gizlilik düzenlemelerine uygun 
+                güvenlik standartları uygular.</li>
+            <li><strong>Çevrimdışı Kullanım:</strong> Hesap oluşturmadan uygulamayı tam işlevsel olarak kullanabilirsiniz.</li>
+        </ul>
+
+        <h2>5. Kişisel Verilerin Aktarımı ve Paylaşımı</h2>
+        <p>
+            KVKK'nın 8. ve 9. maddeleri uyarınca, kişisel verileriniz üçüncü taraflara <strong>satılmaz, 
+            takas edilmez veya kiralanmaz</strong>. Verileriniz yalnızca aşağıdaki durumlarda aktarılabilir veya paylaşılabilir:
+        </p>
+        <ul>
+            <li><strong>Hizmet Sağlayıcılar:</strong> Firebase Authentication hizmeti (kullanılıyorsa) yalnızca kimlik doğrulama 
+                amacıyla kullanılır. Ürün ve envanter verileriniz Firebase'e gönderilmez. Firebase'in gizlilik politikası: 
+                <a href="https://firebase.google.com/support/privacy" target="_blank">https://firebase.google.com/support/privacy</a></li>
+            <li><strong>Yasal Yükümlülükler:</strong> Yasal gereklilikler, mahkeme kararları veya yetkili kamu kurumlarının talepleri doğrultusunda</li>
+            <li><strong>Hakların Korunması:</strong> Yasal haklarımızın korunması, güvenlik ihlallerinin önlenmesi veya kullanıcı güvenliğinin sağlanması amacıyla</li>
+        </ul>
+        <p>
+            <strong>Önemli:</strong> Ürün bilgileriniz, stok kayıtlarınız ve envanter verileriniz hiçbir koşulda 
+            üçüncü taraflarla paylaşılmaz ve yalnızca cihazınızda saklanır.
+        </p>
+
+        <h2>6. Kişisel Verilerin Güvenliği</h2>
+        <p>
+            KVKK'nın 12. maddesi uyarınca, kişisel verilerinizin güvenliğini sağlamak için teknik ve idari 
+            güvenlik önlemleri uygulanmaktadır:
+        </p>
+        <ul>
+            <li><strong>Yerel Veri Güvenliği:</strong> Yerel veriler SQLite veritabanında saklanır. Cihazınızın 
+                güvenlik ayarlarını (ekran kilidi, şifre koruması) aktif tutmanız önerilir.</li>
+            <li><strong>Kimlik Doğrulama Güvenliği:</strong> Firebase Authentication kullanılıyorsa, kimlik doğrulama 
+                verileri endüstri standardı şifreleme yöntemleri ile korunur. Şifreler hash'lenmiş formatta saklanır.</li>
+            <li><strong>Veri İzolasyonu:</strong> Ürün ve envanter verileriniz yalnızca cihazınızda saklanır, 
+                bulut sunucularına gönderilmez veya üçüncü taraflarla paylaşılmaz.</li>
+            <li><strong>Veri Yedekleme:</strong> Verilerinizi PDF veya Excel formatında dışa aktararak yedekleyebilirsiniz. 
+                Düzenli yedekleme yapmanız önerilir.</li>
+            <li><strong>Güvenlik İhlali Bildirimi:</strong> Herhangi bir güvenlik ihlali tespit edilmesi durumunda, 
+                yasal gereklilikler çerçevesinde gerekli bildirimler yapılacaktır.</li>
+        </ul>
+
+        <h2>7. Veri Sahibinin Hakları</h2>
+        <p>
+            KVKK'nın 11. maddesi uyarınca, kişisel verilerinizle ilgili aşağıdaki haklara sahipsiniz:
+        </p>
+        <ul>
+            <li><strong>Bilgi Talep Etme Hakkı:</strong> Kişisel verilerinizin işlenip işlenmediğini öğrenme, 
+                işlenmişse buna ilişkin bilgi talep etme</li>
+            <li><strong>Erişim Hakkı:</strong> Kişisel verilerinize ve tüm uygulama verilerinize erişim sağlama</li>
+            <li><strong>Düzeltme Hakkı:</strong> Yanlış veya eksik işlenmiş kişisel verilerin düzeltilmesini isteme</li>
+            <li><strong>Silme Hakkı:</strong> KVKK'nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerin 
+                silinmesini isteme. Hesabınızı (kullanılıyorsa) ve tüm uygulama verilerinizi silebilirsiniz.</li>
+            <li><strong>İtiraz Hakkı:</strong> Kişisel verilerinizin işlenmesine itiraz etme</li>
+            <li><strong>Veri Taşınabilirliği Hakkı:</strong> Verilerinizi PDF veya Excel formatında dışa aktararak 
+                başka bir cihaza veya uygulamaya aktarma</li>
+            <li><strong>Hakların Kullanımı:</strong> Yukarıda belirtilen haklarınızı kullanmak için bizimle iletişime geçebilirsiniz</li>
+        </ul>
+        <p>
+            <strong>Not:</strong> Uygulamayı hesap oluşturmadan tam işlevsel olarak çevrimdışı modda kullanabilirsiniz. 
+            Firebase hesabınızı (varsa) uygulama içinden veya Firebase Console üzerinden silebilirsiniz.
+        </p>
+
+        <h2>8. Çocukların Gizliliği</h2>
+        <p>
+            Uygulamamız, KVKK ve ilgili mevzuat uyarınca, 18 yaşın altındaki çocuklar için tasarlanmamıştır. 
+            18 yaşın altındaki çocuklardan bilerek kişisel veri toplamıyoruz. Eğer 18 yaşın altında bir çocuğun 
+            kişisel verilerini topladığımızı fark edersek, bu verileri derhal sileriz.
+        </p>
+        <p>
+            Eğer bir ebeveyn veya vasisi iseniz ve çocuğunuzun bize kişisel veri sağladığını düşünüyorsanız, 
+            lütfen bizimle iletişime geçin.
+        </p>
+
+        <h2>9. Gizlilik Politikasındaki Değişiklikler</h2>
+        <p>
+            Bu Gizlilik Politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler yapıldığında, 
+            uygulama içinde bildirim gönderebilir veya bu sayfada "Son Güncelleme" tarihini güncelleyerek 
+            değişiklikleri duyurabiliriz.
+        </p>
+        <p>
+            Değişikliklerden sonra Uygulamayı kullanmaya devam etmeniz, güncellenmiş Gizlilik Politikasını 
+            kabul ettiğiniz anlamına gelir. Değişiklikleri kabul etmiyorsanız, lütfen Uygulamayı kullanmayı bırakın 
+            ve verilerinizi silin.
+        </p>
+
+        <h2>10. Bize Ulaşın</h2>
+        <div class="contact">
+            <p>Bu Gizlilik Politikası hakkında herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin:</p>
+            <p>
+                <strong>E-posta:</strong> devisb35@zohomail.eu<br>
+                <strong>Uygulama:</strong> SmartStock - Stok Yönetimi
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('date').textContent = new Date().toLocaleDateString('tr-TR', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    </script>
+</body>
+</html>

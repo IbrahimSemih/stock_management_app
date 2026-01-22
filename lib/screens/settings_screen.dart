@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/settings_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/sync_provider.dart';
+import '../providers/product_provider.dart';
+import '../providers/category_provider.dart';
+import '../providers/brand_provider.dart';
+import '../providers/stock_history_provider.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
 import '../l10n/app_localizations.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
@@ -83,6 +94,78 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // Senkronizasyon (sadece giriş yapılmışsa göster)
+          if (authProvider.user != null)
+            _SettingsSection(
+              title: context.tr('sync'),
+              children: [
+                _SettingsTile(
+                  icon: Icons.cloud_sync,
+                  title: context.tr('enable_sync'),
+                  subtitle: context.tr('sync_description'),
+                  trailing: Consumer<SyncProvider>(
+                    builder: (context, syncProvider, _) {
+                      return Switch(
+                        value: syncProvider.isSyncEnabled,
+                        onChanged: (value) async {
+                          if (value) {
+                            // Senkronizasyon açılıyor - ilk senkronizasyonu yap
+                            final success = await syncProvider.toggleSync(true);
+                            if (success && context.mounted) {
+                              await _performInitialSync(context);
+                            }
+                          } else {
+                            await syncProvider.toggleSync(false);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Consumer<SyncProvider>(
+                  builder: (context, syncProvider, _) {
+                    if (!syncProvider.isSyncEnabled) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      children: [
+                        _SettingsTile(
+                          icon: Icons.sync,
+                          title: context.tr('sync_now'),
+                          subtitle: syncProvider.lastSyncTime != null
+                              ? '${context.tr('last_sync')}: ${_formatDateTime(syncProvider.lastSyncTime!)}'
+                              : context.tr('never_synced'),
+                          trailing: syncProvider.isSyncing
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.chevron_right, size: 20),
+                          onTap: syncProvider.isSyncing
+                              ? null
+                              : () => _performSync(context),
+                        ),
+                        if (syncProvider.syncError != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              syncProvider.syncError!,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+
+          if (authProvider.user != null) const SizedBox(height: 24),
+
           // Veritabanı
           _SettingsSection(
             title: context.tr('data_management'),
@@ -141,6 +224,18 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: AppConstants.appName,
                 trailing: const Icon(Icons.chevron_right, size: 20),
               ),
+              _SettingsTile(
+                icon: Icons.privacy_tip,
+                title: context.tr('privacy_policy'),
+                subtitle: context.tr('view_privacy_policy'),
+                onTap: () => _launchUrl(AppConstants.privacyPolicyUrl),
+              ),
+              _SettingsTile(
+                icon: Icons.description,
+                title: context.tr('terms_of_service'),
+                subtitle: context.tr('view_terms_of_service'),
+                onTap: () => _launchUrl(AppConstants.termsOfServiceUrl),
+              ),
             ],
           ),
 
@@ -154,7 +249,7 @@ class SettingsScreen extends StatelessWidget {
                 icon: AppIcons.logout,
                 title: context.tr('logout'),
                 subtitle:
-                    authProvider.user?.email ?? context.tr('offline_mode'),
+                    authProvider.user?.email ?? context.tr('not_logged_in'),
                 isDestructive: true,
                 onTap: () async {
                   final confirmed = await showDialog<bool>(
@@ -208,6 +303,104 @@ class SettingsScreen extends StatelessWidget {
         return context.tr('system_default');
     }
   }
+
+  /// İlk senkronizasyonu yapar
+  Future<void> _performInitialSync(BuildContext context) async {
+    final syncProvider = context.read<SyncProvider>();
+    final productProvider = context.read<ProductProvider>();
+    final categoryProvider = context.read<CategoryProvider>();
+    final brandProvider = context.read<BrandProvider>();
+    final stockHistoryProvider = context.read<StockHistoryProvider>();
+
+    // Verileri yükle
+    await Future.wait([
+      productProvider.loadAllProducts(),
+      categoryProvider.loadCategories(),
+      brandProvider.loadBrands(),
+      stockHistoryProvider.loadHistory(),
+    ]);
+
+    // Senkronizasyonu yap
+    final success = await syncProvider.syncToCloud(
+      products: productProvider.products,
+      categories: categoryProvider.categories,
+      brands: brandProvider.brands,
+      stockHistory: stockHistoryProvider.history,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? context.tr('sync_success')
+                : context.tr('sync_failed'),
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Manuel senkronizasyon yapar
+  Future<void> _performSync(BuildContext context) async {
+    final syncProvider = context.read<SyncProvider>();
+    final productProvider = context.read<ProductProvider>();
+    final categoryProvider = context.read<CategoryProvider>();
+    final brandProvider = context.read<BrandProvider>();
+    final stockHistoryProvider = context.read<StockHistoryProvider>();
+
+    // Verileri yükle
+    await Future.wait([
+      productProvider.loadAllProducts(),
+      categoryProvider.loadCategories(),
+      brandProvider.loadBrands(),
+      stockHistoryProvider.loadHistory(),
+    ]);
+
+    // Senkronizasyonu yap
+    final success = await syncProvider.syncToCloud(
+      products: productProvider.products,
+      categories: categoryProvider.categories,
+      brands: brandProvider.brands,
+      stockHistory: stockHistoryProvider.history,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? context.tr('sync_success')
+                : context.tr('sync_failed'),
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Tarih formatlar
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      // URL açılamazsa kullanıcıya bilgi ver
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('URL açılamadı: $url'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _LanguageSelector extends StatelessWidget {
@@ -221,31 +414,6 @@ class _LanguageSelector extends StatelessWidget {
         settingsProvider.setLocale(Locale(code));
       },
       itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'en',
-          child: Row(
-            children: [
-              Text(AppLocalizations.getLanguageFlag('en')),
-              const SizedBox(width: 12),
-              Text(
-                'English',
-                style: TextStyle(
-                  fontWeight: settingsProvider.locale.languageCode == 'en'
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                ),
-              ),
-              if (settingsProvider.locale.languageCode == 'en') ...[
-                const Spacer(),
-                Icon(
-                  Icons.check,
-                  size: 20,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ],
-            ],
-          ),
-        ),
         PopupMenuItem(
           value: 'tr',
           child: Row(
@@ -261,6 +429,31 @@ class _LanguageSelector extends StatelessWidget {
                 ),
               ),
               if (settingsProvider.locale.languageCode == 'tr') ...[
+                const Spacer(),
+                Icon(
+                  Icons.check,
+                  size: 20,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ],
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'en',
+          child: Row(
+            children: [
+              Text(AppLocalizations.getLanguageFlag('en')),
+              const SizedBox(width: 12),
+              Text(
+                'English',
+                style: TextStyle(
+                  fontWeight: settingsProvider.locale.languageCode == 'en'
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+              if (settingsProvider.locale.languageCode == 'en') ...[
                 const Spacer(),
                 Icon(
                   Icons.check,

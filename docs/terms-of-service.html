@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStock - Kullanım Koşulları</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563EB;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        h2 {
+            color: #1E40AF;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        h3 {
+            color: #3B82F6;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .last-updated {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        .contact {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .warning {
+            background: #fef3c7;
+            padding: 15px;
+            border-left: 4px solid #f59e0b;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kullanım Koşulları</h1>
+        <p class="last-updated">Son Güncelleme: <span id="date"></span></p>
+
+        <h2>1. Koşulları Kabul Etme</h2>
+        <p>
+            SmartStock mobil uygulamasını ("Uygulama") indirerek, yükleyerek veya kullanarak, bu Kullanım Koşullarına 
+            ("Koşullar" veya "Sözleşme") bağlı kalmayı kabul etmiş sayılırsınız. Bu Koşullar, Uygulamanın kullanımı 
+            ile ilgili hak ve yükümlülüklerinizi düzenlemektedir.
+        </p>
+        <p>
+            Bu Koşulları kabul etmiyorsanız, lütfen Uygulamayı kullanmayın ve cihazınızdan kaldırın. Uygulamayı 
+            kullanmaya devam etmeniz, bu Koşulları okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan eder.
+        </p>
+
+        <h2>2. Hizmet Açıklaması</h2>
+        <p>
+            SmartStock, aşağıdakileri yapmanıza olanak tanıyan bir mobil envanter yönetim uygulamasıdır:
+        </p>
+        <ul>
+            <li>Ürün ve envanter yönetimi (ekleme, düzenleme, silme)</li>
+            <li>Stok seviyeleri, stok giriş/çıkış işlemleri ve geçmişi takibi</li>
+            <li>Barkod ve QR kod tarama ile hızlı ürün arama</li>
+            <li>Kategori ve marka yönetimi</li>
+            <li>PDF ve Excel formatlarında rapor oluşturma ve dışa aktarma</li>
+            <li>Kritik stok uyarıları ve düşük stok bildirimleri</li>
+            <li>Firebase Authentication ile güvenli hesap yönetimi (isteğe bağlı)</li>
+            <li>Tam çevrimdışı çalışma desteği</li>
+            <li>Açık/koyu tema ve çoklu dil desteği (Türkçe, İngilizce)</li>
+        </ul>
+
+        <h2>3. Kullanıcı Hesapları ve Sorumluluklar</h2>
+        <h3>3.1 Hesap Oluşturma</h3>
+        <ul>
+            <li>Uygulamayı hesap oluşturmadan tam işlevsel olarak çevrimdışı modda kullanabilirsiniz. 
+                Hesap oluşturma zorunlu değildir.</li>
+            <li>Firebase Authentication hizmetini kullanarak hesap oluşturma tamamen isteğe bağlıdır.</li>
+            <li>Hesap oluşturursanız, hesap bilgilerinizin (e-posta, şifre) gizliliğini ve güvenliğini 
+                korumaktan tamamen siz sorumlusunuz.</li>
+            <li>Ürün ve envanter verileriniz yalnızca cihazınızda saklanır, bulut sunucularına yüklenmez 
+                veya üçüncü taraflarla paylaşılmaz.</li>
+            <li>18 yaşın altındaysanız, hesap oluşturmadan önce ebeveyn veya vasinizin iznini almanız gerekir.</li>
+        </ul>
+
+        <h3>3.2 Hesap Sorumluluğu</h3>
+        <ul>
+            <li>Hesabınız altında gerçekleştirilen tüm faaliyetlerden ve işlemlerden siz sorumlusunuz.</li>
+            <li>Hesap bilgilerinizin yetkisiz kullanımından veya güvenlik ihlalinden şüphelenmeniz durumunda 
+                derhal bizimle iletişime geçmelisiniz.</li>
+            <li>Güçlü ve benzersiz bir şifre kullanmanız ve şifrenizi üçüncü taraflarla paylaşmamanız önerilir.</li>
+            <li>Bu Koşulları ihlal eden, yasadışı faaliyetlerde bulunan veya güvenliği tehdit eden hesapları 
+                önceden haber vermeksizin askıya alma veya sonlandırma hakkımız saklıdır.</li>
+        </ul>
+
+        <h2>4. Kabul Edilebilir Kullanım ve Yasaklar</h2>
+        <p>
+            Uygulamayı kullanırken, aşağıdaki faaliyetleri gerçekleştirmeyi <strong>kesinlikle kabul etmiyorsunuz</strong>:
+        </p>
+        <ul>
+            <li>Uygulamayı yasadışı, dolandırıcılık, sahtekarlık veya yetkisiz amaçlarla kullanmak</li>
+            <li>Geçerli yasaları, düzenlemeleri veya üçüncü taraf haklarını ihlal etmek</li>
+            <li>Virüs, kötü amaçlı yazılım, truva atı veya zararlı kod içeren verileri uygulamaya yüklemek veya iletmek</li>
+            <li>Uygulamanın kaynak kodunu tersine mühendislik yapmak, değiştirmek, hacklemeye çalışmak veya 
+                güvenlik önlemlerini aşmaya çalışmak</li>
+            <li>Uygulamayı yasadışı içerik depolamak, dağıtmak veya iletmek için kullanmak</li>
+            <li>Uygulamanın işlevselliğini bozmak, engellemek, performansını düşürmek veya diğer kullanıcıların 
+                deneyimini olumsuz etkilemek</li>
+            <li>Otomatik sistemler, botlar veya scriptler kullanarak uygulamayı kötüye kullanmak</li>
+            <li>Başkalarının kişisel bilgilerini izinsiz toplamak, saklamak veya kullanmak</li>
+        </ul>
+        <p>
+            Yukarıdaki yasakları ihlal etmeniz durumunda, hesabınız derhal askıya alınabilir veya sonlandırılabilir 
+            ve yasal işlem başlatılabilir.
+        </p>
+
+        <h2>5. Veri Sahipliği ve Yedekleme</h2>
+        <h3>5.1 Veri Sahipliği</h3>
+        <ul>
+            <li>Uygulamaya girdiğiniz, yüklediğiniz veya oluşturduğunuz tüm verilerin (ürün bilgileri, stok kayıtları, 
+                kategoriler, markalar vb.) fikri mülkiyet hakları ve sahipliği size aittir.</li>
+            <li>Verilerinizin güvenliği, yedeklenmesi ve korunmasından siz sorumlusunuz.</li>
+            <li>Cihaz arızası, kullanıcı hatası, yazılım güncellemeleri veya diğer teknik sorunlar nedeniyle oluşabilecek 
+                veri kaybından sorumlu değiliz.</li>
+            <li>Verilerinizi düzenli olarak yedeklemenizi ve önemli verilerinizin kopyalarını saklamanızı şiddetle öneririz.</li>
+        </ul>
+
+        <h3>5.2 Veri Yedekleme ve Dışa Aktarma</h3>
+        <p>
+            Uygulama, verilerinizi PDF ve Excel formatlarında dışa aktarma işlevselliği sunmaktadır. 
+            Verilerinizi düzenli olarak yedeklemek tamamen sizin sorumluluğunuzdadır. Aşağıdaki önerileri dikkate almanızı öneririz:
+        </p>
+        <ul>
+            <li>Dışa aktarma özelliğini düzenli olarak (haftalık veya aylık) kullanın</li>
+            <li>Yedek dosyalarınızı güvenli bir yerde (bulut depolama, harici disk vb.) saklayın</li>
+            <li>Önemli veri girişlerinden sonra anında yedek alın</li>
+            <li>Cihaz değişikliği veya uygulama kaldırma öncesi mutlaka yedek alın</li>
+        </ul>
+
+        <h2>6. Fikri Mülkiyet Hakları</h2>
+        <p>
+            Uygulama, tasarımı, kaynak kodu, kullanıcı arayüzü, grafikleri, logoları, özellikleri ve tüm içeriği 
+            dahil olmak üzere telif hakkı, ticari marka ve diğer fikri mülkiyet yasaları tarafından korunmaktadır. 
+            Tüm haklar saklıdır.
+        </p>
+        <p>
+            Aşağıdaki faaliyetleri <strong>kesinlikle yapamazsınız</strong>:
+        </p>
+        <ul>
+            <li>İzin olmadan Uygulamayı kopyalamak, çoğaltmak, değiştirmek, türev eserler oluşturmak veya dağıtmak</li>
+            <li>Uygulamanın kaynak kodunu tersine mühendislik yapmak, derlemekten çıkarmak veya analiz etmek</li>
+            <li>Uygulamanın herhangi bir bölümünü, özelliğini veya içeriğini başka bir uygulamada veya platformda kullanmak</li>
+            <li>Telif hakkı bildirimlerini, ticari marka işaretlerini veya diğer mülkiyet bildirimlerini kaldırmak veya değiştirmek</li>
+            <li>Uygulamanın adını, logosunu veya ticari markalarını izinsiz kullanmak</li>
+            <li>Uygulamayı ticari amaçlarla yeniden satmak, lisanslamak veya dağıtmak</li>
+        </ul>
+        <p>
+            Fikri mülkiyet haklarını ihlal etmeniz durumunda, yasal işlem başlatılabilir ve tazminat talep edilebilir.
+        </p>
+
+        <h2>7. Üçüncü Taraf Hizmetleri</h2>
+        <p>
+            Uygulama üçüncü taraf hizmetlerle (ör. Firebase Authentication) entegre olabilir. Bu hizmetlerin kullanımı, 
+            ilgili kullanım koşullarına ve gizlilik politikalarına tabidir. Firebase Authentication kullanımı tamamen 
+            isteğe bağlıdır ve uygulama çevrimdışı modda da tam işlevsel olarak çalışır.
+        </p>
+        <ul>
+            <li><strong>Firebase Authentication:</strong> Kimlik doğrulama hizmeti (isteğe bağlı) - <a href="https://firebase.google.com/terms" target="_blank">Firebase Kullanım Koşulları</a></li>
+            <li>Ürün ve envanter verileriniz üçüncü taraf servislere gönderilmez</li>
+        </ul>
+
+        <h2>8. Garanti Reddi</h2>
+        <div class="warning">
+            <p>
+                <strong>UYGULAMA "OLDUĞU GİBİ" VE "MÜMKÜN OLDUĞU KADAR" HERHANGİ BİR TÜR GARANTİ OLMAKSIZIN 
+                SAĞLANMAKTADIR, AÇIK VEYA ZIMNİ.</strong> Aşağıdakileri garanti etmiyoruz:
+            </p>
+            <ul>
+                <li>Uygulamanın hatasız veya kesintisiz olacağı</li>
+                <li>Kusurların düzeltileceği</li>
+                <li>Uygulamanın özel gereksinimlerinizi karşılayacağı</li>
+            </ul>
+        </div>
+
+        <h2>9. Sorumluluk Sınırlaması</h2>
+        <p>
+            Yasa tarafından izin verilen maksimum ölçüde, aşağıdakiler dahil ancak bunlarla sınırlı olmamak 
+            üzere dolaylı, arızi, özel, sonuçsal veya cezai zararlardan sorumlu değiliz:
+        </p>
+        <ul>
+            <li>Kar veya gelir kaybı</li>
+            <li>Veri veya iş bilgisi kaybı</li>
+            <li>İş kesintisi</li>
+            <li>Uygulamayı kullanmanızdan kaynaklanan diğer zararlar</li>
+        </ul>
+
+        <h2>10. Tazminat</h2>
+        <p>
+            Uygulamayı kullanmanızdan veya bu Koşulları ihlal etmenizden kaynaklanan herhangi bir talep, 
+            zarar, kayıp, yükümlülük ve giderden bizi zararsız tutmayı kabul edersiniz.
+        </p>
+
+        <h2>11. Fesih</h2>
+        <p>Aşağıdaki durumlarda, önceden haber vermeden erişiminizi derhal sonlandırabilir veya askıya alabiliriz:</p>
+        <ul>
+            <li>Bu Koşulları ihlal ederseniz</li>
+            <li>Dolandırıcılık veya yasadışı faaliyetlerde bulunursanız</li>
+            <li>Geçerli ücretleri (varsa) ödemezseniz</li>
+        </ul>
+        <p>
+            Fesih durumunda, Uygulamayı kullanma hakkınız derhal sona erer. Uygulamayı ve yerel verilerinizi 
+            istediğiniz zaman silebilirsiniz.
+        </p>
+
+        <h2>12. Koşullardaki Değişiklikler</h2>
+        <p>
+            Bu Kullanım Koşullarını istediğimiz zaman, önceden haber vermeksizin değiştirme, güncelleme veya 
+            revize etme hakkını saklı tutarız. Önemli değişiklikler yapıldığında, uygulama içinde bildirim 
+            gönderebilir veya bu sayfada "Son Güncelleme" tarihini güncelleyerek değişiklikleri duyurabiliriz.
+        </p>
+        <p>
+            Değişikliklerden sonra Uygulamayı kullanmaya devam etmeniz, güncellenmiş Kullanım Koşullarını 
+            okuduğunuzu, anladığınızı ve kabul ettiğinizi beyan eder. Değişiklikleri kabul etmiyorsanız, 
+            lütfen Uygulamayı kullanmayı bırakın ve cihazınızdan kaldırın.
+        </p>
+        <p>
+            Bu sayfayı düzenli olarak kontrol etmenizi ve güncel Koşulları takip etmenizi öneririz.
+        </p>
+
+        <h2>13. Geçerli Hukuk</h2>
+        <p>
+            Bu Koşullar, Türkiye Cumhuriyeti yasalarına göre yönetilir ve yorumlanır. Herhangi bir uyuşmazlık durumunda, 
+            Türkiye Cumhuriyeti mahkemeleri yetkilidir.
+        </p>
+
+        <h2>14. İletişim Bilgileri</h2>
+        <div class="contact">
+            <p>Bu Kullanım Koşulları hakkında herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin:</p>
+            <p>
+                <strong>E-posta:</strong> devisb35@zohomail.eu<br>
+                <strong>Uygulama:</strong> SmartStock - Stok Yönetimi
+            </p>
+        </div>
+
+        <h2>15. Onay</h2>
+        <p>
+            SmartStock'u kullanarak, bu Kullanım Koşullarını okuduğunuzu, anladığınızı ve bunlara bağlı 
+            kalmayı kabul ettiğinizi onaylarsınız.
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('date').textContent = new Date().toLocaleDateString('tr-TR', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    </script>
+</body>
+</html>

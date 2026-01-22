@@ -45,7 +45,12 @@ class DBHelper {
           await db.execute('ALTER TABLE products ADD COLUMN brand_id INTEGER');
           debugPrint('brand_id kolonu eklendi');
         } catch (e) {
-          debugPrint('brand_id kolonu eklenirken hata: $e');
+          // Kolon zaten varsa sessizce devam et
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('brand_id kolonu zaten mevcut');
+          } else {
+            debugPrint('brand_id kolonu eklenirken hata: $e');
+          }
         }
       }
       
@@ -55,7 +60,12 @@ class DBHelper {
           await db.execute('ALTER TABLE products ADD COLUMN model TEXT');
           debugPrint('model kolonu eklendi');
         } catch (e) {
-          debugPrint('model kolonu eklenirken hata: $e');
+          // Kolon zaten varsa sessizce devam et
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('model kolonu zaten mevcut');
+          } else {
+            debugPrint('model kolonu eklenirken hata: $e');
+          }
         }
       }
     } catch (e) {
@@ -152,16 +162,26 @@ class DBHelper {
         // Add brand_id and model columns to products table
         // SQLite doesn't support adding FOREIGN KEY constraints via ALTER TABLE
         // So we just add the columns without the constraint
-        try {
-          await db.execute('ALTER TABLE products ADD COLUMN brand_id INTEGER');
-        } catch (e) {
-          debugPrint('brand_id column might already exist: $e');
+        // Önce kolonların var olup olmadığını kontrol et
+        final tableInfo = await db.rawQuery('PRAGMA table_info(products)');
+        final columnNames = tableInfo.map((row) => row['name'] as String).toSet();
+        
+        if (!columnNames.contains('brand_id')) {
+          try {
+            await db.execute('ALTER TABLE products ADD COLUMN brand_id INTEGER');
+            debugPrint('brand_id column added in migration');
+          } catch (e) {
+            debugPrint('brand_id column might already exist: $e');
+          }
         }
         
-        try {
-          await db.execute('ALTER TABLE products ADD COLUMN model TEXT');
-        } catch (e) {
-          debugPrint('model column might already exist: $e');
+        if (!columnNames.contains('model')) {
+          try {
+            await db.execute('ALTER TABLE products ADD COLUMN model TEXT');
+            debugPrint('model column added in migration');
+          } catch (e) {
+            debugPrint('model column might already exist: $e');
+          }
         }
       } catch (e) {
         debugPrint('Migration error: $e');

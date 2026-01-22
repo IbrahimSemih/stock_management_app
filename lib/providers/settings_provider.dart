@@ -11,9 +11,9 @@ class SettingsProvider with ChangeNotifier {
   static const String _lowStockAlertsKey = 'low_stock_alerts';
 
   ThemeMode _themeMode = ThemeMode.system;
-  Locale _locale = const Locale('en', 'US');
-  String _currency = 'USD';
-  String _currencySymbol = '\$';
+  Locale _locale = const Locale('tr', 'TR');
+  String _currency = 'TRY';
+  String _currencySymbol = '₺';
   int _lowStockThreshold = 10;
   bool _notificationsEnabled = true;
   bool _lowStockAlertsEnabled = true;
@@ -36,12 +36,12 @@ class SettingsProvider with ChangeNotifier {
     _themeMode = ThemeMode.values[themeModeIndex];
 
     // Locale
-    final localeCode = prefs.getString(_localeKey) ?? 'en';
+    final localeCode = prefs.getString(_localeKey) ?? 'tr';
     _locale = Locale(localeCode);
 
     // Currency
-    _currency = prefs.getString(_currencyKey) ?? 'USD';
-    _currencySymbol = prefs.getString(_currencySymbolKey) ?? '\$';
+    _currency = prefs.getString(_currencyKey) ?? 'TRY';
+    _currencySymbol = prefs.getString(_currencySymbolKey) ?? '₺';
 
     // Low Stock Threshold
     _lowStockThreshold = prefs.getInt(_lowStockThresholdKey) ?? 10;

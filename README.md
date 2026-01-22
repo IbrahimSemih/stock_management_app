@@ -33,7 +33,7 @@
 - ✅ **Barcode Scanner** - Quick product lookup with camera
 - ✅ **Multi-language** - English and Turkish support
 - ✅ **Export Reports** - PDF and Excel export functionality
-- ✅ **Cloud Backup** - Firebase integration for data safety
+- ✅ **Cloud Backup** - Supabase integration for data safety
 - ✅ **Cross-Platform** - Android and iOS support
 
 ---
@@ -67,7 +67,7 @@
 - Share reports via apps
 
 ### 🔐 Authentication
-- Firebase Authentication
+- Supabase Authentication
 - Email/password login
 - Offline mode support
 - User profile management
@@ -111,7 +111,7 @@
 - Flutter SDK 3.19 or higher
 - Dart SDK 3.3 or higher
 - Android Studio / VS Code
-- Firebase account (for authentication)
+- Supabase account (for authentication) - Free tier available
 
 ### Step 1: Extract the Package
 
@@ -126,18 +126,25 @@ cd smartstock
 flutter pub get
 ```
 
-### Step 3: Configure Firebase
+### Step 3: Configure Supabase
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or use existing one
-3. Add Android app with your package name
-4. Download `google-services.json`
-5. Place it in `android/app/` directory
-6. Add iOS app (if needed)
-7. Download `GoogleService-Info.plist`
-8. Place it in `ios/Runner/` directory
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Create a new project (free tier available)
+3. Go to **Settings > API**
+4. Copy the **Project URL** and **anon public** key
+5. Open `lib/config/supabase_config.dart`
+6. Replace the placeholder values:
 
-> 📖 See [FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md) for detailed instructions
+```dart
+static const String supabaseUrl = 'https://your-project.supabase.co';
+static const String supabaseAnonKey = 'your-anon-key-here';
+```
+
+7. Enable Email Authentication in **Authentication > Providers > Email**
+
+> 📖 See [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) for detailed instructions
+
+**Note:** The app works in offline mode without Supabase configuration.
 
 ### Step 4: Run the App
 
@@ -258,8 +265,8 @@ lib/
 | Flutter 3.19+ | Cross-platform framework |
 | Provider | State management |
 | SQLite (sqflite) | Local database |
-| Firebase Auth | Authentication |
-| Cloud Firestore | Cloud backup (optional) |
+| Supabase Auth | Authentication |
+| Supabase | Cloud backup (optional) |
 | mobile_scanner | Barcode scanning |
 | pdf & printing | PDF generation |
 | excel | Excel export |
@@ -274,7 +281,7 @@ lib/
 - ✅ Category & brand management
 - ✅ Stock tracking with history
 - ✅ Barcode/QR scanner
-- ✅ Firebase authentication
+- ✅ Supabase authentication
 - ✅ PDF & Excel export
 - ✅ Database backup & restore
 - ✅ Dark/Light theme
@@ -286,7 +293,7 @@ lib/
 ## 🆘 Support
 
 ### Documentation
-- [Firebase Setup Guide](docs/FIREBASE_SETUP.md)
+- [Supabase Setup Guide](docs/SUPABASE_SETUP.md)
 - [Customization Guide](docs/CUSTOMIZATION.md)
 - [FAQ](docs/FAQ.md)
 
@@ -321,7 +328,7 @@ See [LICENSE](LICENSE) for full details.
 ## 🙏 Credits
 
 - [Flutter](https://flutter.dev) - Google's UI toolkit
-- [Firebase](https://firebase.google.com) - Backend services
+- [Supabase](https://supabase.com) - Backend services
 - [Material Design 3](https://m3.material.io) - Design system
 - Icons by [Font Awesome](https://fontawesome.com)
 

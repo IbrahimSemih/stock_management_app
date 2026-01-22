@@ -20,8 +20,7 @@ const Map<String, String> appEn = {
   'login_failed': 'Login failed',
   'register_success': 'Registration successful',
   'logout_confirm': 'Are you sure you want to logout?',
-  'offline_mode': 'Offline Mode',
-  'continue_offline': 'Continue Offline',
+  'not_logged_in': 'Not logged in',
   'or': 'or',
   
   // Dashboard
@@ -169,6 +168,14 @@ const Map<String, String> appEn = {
   'currency': 'Currency',
   'select_currency': 'Select Currency',
   'data_management': 'Data Management',
+  'sync': 'Synchronization',
+  'enable_sync': 'Data Backup',
+  'sync_description': 'Backup your data',
+  'sync_now': 'Sync Now',
+  'last_sync': 'Last Sync',
+  'never_synced': 'Never synced',
+  'sync_success': 'Sync successful',
+  'sync_failed': 'Sync failed',
   'clear_cache': 'Clear Cache',
   'cache_cleared': 'Cache cleared',
   'account': 'Account',
@@ -177,6 +184,8 @@ const Map<String, String> appEn = {
   'version': 'Version',
   'privacy_policy': 'Privacy Policy',
   'terms_of_service': 'Terms of Service',
+  'view_privacy_policy': 'View Privacy Policy',
+  'view_terms_of_service': 'View Terms of Service',
   'rate_app': 'Rate App',
   'contact_support': 'Contact Support',
   

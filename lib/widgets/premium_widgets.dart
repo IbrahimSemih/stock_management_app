@@ -1072,10 +1072,11 @@ class _PremiumFABGroupState extends State<PremiumFABGroup>
             duration: Duration(milliseconds: 300 + (index * 100)),
             curve: Curves.easeOutBack,
             builder: (context, value, child) {
+              final clampedValue = value.clamp(0.0, 1.0);
               return Transform.translate(
-                offset: Offset(0, 30 * (1 - value)),
+                offset: Offset(0, 30 * (1 - clampedValue)),
                 child: Opacity(
-                  opacity: value,
+                  opacity: clampedValue,
                   child: child,
                 ),
               );

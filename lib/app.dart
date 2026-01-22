@@ -8,6 +8,7 @@ import 'providers/price_history_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/stock_history_provider.dart';
+import 'providers/sync_provider.dart';
 import 'utils/constants.dart';
 import 'routes.dart';
 import 'widgets/status_bar_wrapper.dart';
@@ -60,6 +61,7 @@ class SmartStockApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => StockHistoryProvider()),
         ChangeNotifierProvider(create: (_) => PriceHistoryProvider()),
+        ChangeNotifierProvider(create: (_) => SyncProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) {

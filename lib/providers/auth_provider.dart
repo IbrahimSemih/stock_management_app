@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
+import '../config/firebase_config.dart';
 
 class AuthProvider with ChangeNotifier {
   FirebaseAuth? _auth;
@@ -10,12 +10,11 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   bool _isFirebaseInitialized = false;
-  bool _isOfflineMode = false;
-
   User? get user => _user;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  bool get isAuthenticated => _user != null || _isOfflineMode;
+  bool get isAuthenticated => _user != null;
+  bool get isFirebaseInitialized => _isFirebaseInitialized;
 
   AuthProvider() {
     _init();
@@ -24,26 +23,25 @@ class AuthProvider with ChangeNotifier {
   Future<void> _init() async {
     // Firebase'in başlatılıp başlatılmadığını kontrol et
     try {
-      if (Firebase.apps.isNotEmpty) {
+      if (FirebaseConfig.isConfigured) {
         _auth = FirebaseAuth.instance;
         _isFirebaseInitialized = true;
+
+        // Auth state değişikliklerini dinle
         _auth!.authStateChanges().listen((User? user) {
           _user = user;
           notifyListeners();
         });
+
+        // Mevcut oturumu kontrol et
+        _user = _auth!.currentUser;
       }
     } catch (e) {
       // Firebase başlatılmamış, offline mod kullanılacak
       _isFirebaseInitialized = false;
+      debugPrint('Firebase not initialized: $e');
     }
-    
-    // SharedPreferences'tan offline kullanım durumunu kontrol et
-    final prefs = await SharedPreferences.getInstance();
-    _isOfflineMode = prefs.getBool(AppConstants.keyIsLoggedIn) ?? false;
-    if (_isOfflineMode && _user == null) {
-      // Offline mod aktif
-      notifyListeners();
-    }
+
   }
 
   Future<bool> signInWithEmailPassword(String email, String password) async {
@@ -62,18 +60,18 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
+
       _user = userCredential.user;
-      _isOfflineMode = false; // Firebase ile giriş yapıldığında offline mod kapatılır
-      
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(AppConstants.keyIsLoggedIn, true);
       await prefs.setString(AppConstants.keyUserEmail, email);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorKey(e.code);
+      _errorMessage = _getErrorKey(e.code, e.message ?? '');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -105,45 +103,33 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
+
+      // Display name'i güncelle
+      if (userCredential.user != null && displayName.isNotEmpty) {
+        await userCredential.user!.updateDisplayName(displayName);
+        await userCredential.user!.reload();
+        _user = _auth!.currentUser;
+      } else {
+        _user = userCredential.user;
+      }
       
-      await userCredential.user?.updateDisplayName(displayName);
-      _user = userCredential.user;
-      _isOfflineMode = false; // Firebase ile giriş yapıldığında offline mod kapatılır
-      
+      // Email verification gönder (isteğe bağlı)
+      if (_user != null && !_user!.emailVerified) {
+        await _user!.sendEmailVerification();
+      }
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(AppConstants.keyIsLoggedIn, true);
       await prefs.setString(AppConstants.keyUserEmail, email);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorKey(e.code);
+      _errorMessage = _getErrorKey(e.code, e.message ?? '');
       _isLoading = false;
       notifyListeners();
       return false;
-    } catch (e) {
-      _errorMessage = 'error_generic';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> signInOffline() async {
-    try {
-      _isLoading = true;
-      _errorMessage = null;
-      notifyListeners();
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(AppConstants.keyIsLoggedIn, true);
-      await prefs.setString(AppConstants.keyUserEmail, 'offline@user.com');
-      
-      _isOfflineMode = true;
-      _isLoading = false;
-      notifyListeners();
-      return true;
     } catch (e) {
       _errorMessage = 'error_generic';
       _isLoading = false;
@@ -161,7 +147,6 @@ class AuthProvider with ChangeNotifier {
       await prefs.setBool(AppConstants.keyIsLoggedIn, false);
       await prefs.remove(AppConstants.keyUserEmail);
       _user = null;
-      _isOfflineMode = false;
       notifyListeners();
     } catch (e) {
       _errorMessage = 'error_logout';
@@ -182,12 +167,12 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
 
       await _auth!.sendPasswordResetEmail(email: email);
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorKey(e.code);
+      _errorMessage = _getErrorKey(e.code, e.message ?? '');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -199,27 +184,44 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  String _getErrorKey(String code) {
-    switch (code) {
-      case 'weak-password':
-        return 'error_weak_password';
-      case 'email-already-in-use':
-        return 'error_email_in_use';
-      case 'user-not-found':
-        return 'error_user_not_found';
-      case 'wrong-password':
-        return 'error_wrong_password';
-      case 'invalid-email':
-        return 'error_invalid_email';
-      case 'user-disabled':
-        return 'error_user_disabled';
-      case 'too-many-requests':
-        return 'error_too_many_requests';
-      case 'operation-not-allowed':
-        return 'error_operation_not_allowed';
-      default:
-        return 'error_generic';
+  String _getErrorKey(String code, String message) {
+    final lowerCode = code.toLowerCase();
+    final lowerMessage = message.toLowerCase();
+
+    // Firebase Auth error codes
+    if (lowerCode == 'weak-password' || 
+        (lowerMessage.contains('password') && lowerMessage.contains('weak'))) {
+      return 'error_weak_password';
     }
+    if (lowerCode == 'email-already-in-use' || 
+        (lowerMessage.contains('email') && lowerMessage.contains('already'))) {
+      return 'error_email_in_use';
+    }
+    if (lowerCode == 'user-not-found' || 
+        (lowerMessage.contains('user') && lowerMessage.contains('not found'))) {
+      return 'error_user_not_found';
+    }
+    if (lowerCode == 'wrong-password' || 
+        lowerCode == 'invalid-credential' ||
+        (lowerMessage.contains('invalid') && lowerMessage.contains('credentials'))) {
+      return 'error_wrong_password';
+    }
+    if (lowerCode == 'invalid-email' || 
+        (lowerMessage.contains('invalid') && lowerMessage.contains('email'))) {
+      return 'error_invalid_email';
+    }
+    if (lowerCode == 'user-disabled') {
+      return 'error_user_disabled';
+    }
+    if (lowerCode == 'too-many-requests' || 
+        (lowerMessage.contains('too many') || lowerMessage.contains('rate limit'))) {
+      return 'error_too_many_requests';
+    }
+    if (lowerCode == 'operation-not-allowed') {
+      return 'error_operation_not_allowed';
+    }
+
+    return 'error_generic';
   }
 
   Future<bool> checkAuthStatus() async {
@@ -227,7 +229,10 @@ class AuthProvider with ChangeNotifier {
     return prefs.getBool(AppConstants.keyIsLoggedIn) ?? false;
   }
 
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     if (!_isFirebaseInitialized || _auth == null || _user == null) {
       _errorMessage = 'firebase_not_initialized';
       notifyListeners();
@@ -239,21 +244,20 @@ class AuthProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Re-authenticate user with current password
+      // Firebase'de şifre değiştirme için önce mevcut şifre ile yeniden kimlik doğrulama yapılmalı
       final credential = EmailAuthProvider.credential(
         email: _user!.email!,
         password: currentPassword,
       );
+      
       await _user!.reauthenticateWithCredential(credential);
-
-      // Update password
       await _user!.updatePassword(newPassword);
 
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorKey(e.code);
+      _errorMessage = _getErrorKey(e.code, e.message ?? '');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -277,14 +281,13 @@ class AuthProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Re-authenticate user before deletion
+      // Firebase'de hesap silme için önce şifre ile yeniden kimlik doğrulama yapılmalı
       final credential = EmailAuthProvider.credential(
         email: _user!.email!,
         password: password,
       );
+      
       await _user!.reauthenticateWithCredential(credential);
-
-      // Delete user account
       await _user!.delete();
 
       // Clear local data
@@ -292,13 +295,12 @@ class AuthProvider with ChangeNotifier {
       await prefs.setBool(AppConstants.keyIsLoggedIn, false);
       await prefs.remove(AppConstants.keyUserEmail);
       _user = null;
-      _isOfflineMode = false;
 
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorKey(e.code);
+      _errorMessage = _getErrorKey(e.code, e.message ?? '');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -322,6 +324,7 @@ class AuthProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      // Firebase'de email doğrulama linki gönder
       await _user!.sendEmailVerification();
 
       _isLoading = false;
@@ -335,4 +338,3 @@ class AuthProvider with ChangeNotifier {
     }
   }
 }
-

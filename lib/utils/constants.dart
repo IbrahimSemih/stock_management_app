@@ -14,7 +14,7 @@ class AppConstants {
   static const Color secondaryLight = Color(0xFFA78BFA);
   static const Color accentColor = Color(0xFF06B6D4); // Cyan
   static const Color accentDark = Color(0xFF0891B2);
-  
+
   // Status Colors
   static const Color successColor = Color(0xFF10B981); // Emerald
   static const Color successLight = Color(0xFF34D399);
@@ -23,37 +23,37 @@ class AppConstants {
   static const Color errorColor = Color(0xFFEF4444); // Red
   static const Color errorLight = Color(0xFFF87171);
   static const Color criticalStockColor = Color(0xFFDC2626);
-  
+
   // Neutral Colors
   static const Color neutralDark = Color(0xFF1F2937);
   static const Color neutralMedium = Color(0xFF6B7280);
   static const Color neutralLight = Color(0xFFF3F4F6);
-  
+
   // Gradient Presets
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [primaryColor, secondaryColor],
   );
-  
+
   static const LinearGradient successGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF10B981), Color(0xFF059669)],
   );
-  
+
   static const LinearGradient warningGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
   );
-  
+
   static const LinearGradient dangerGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
   );
-  
+
   static const LinearGradient darkGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -71,6 +71,8 @@ class AppConstants {
   static const String keyUserEmail = 'user_email';
   static const String keyThemeMode = 'theme_mode';
   static const String keyViewMode = 'view_mode';
+  static const String keySyncEnabled = 'sync_enabled';
+  static const String keyLastSyncTime = 'last_sync_time';
 
   // Stock Types
   static const String stockTypeIn = 'IN';
@@ -99,12 +101,18 @@ class AppConstants {
   static const String routeSettings = '/settings';
   static const String routeStockHistory = '/stock-history';
   static const String routeProfile = '/profile';
+
+  // External Links
+  static const String privacyPolicyUrl =
+      'https://ibrahimsemih.github.io/smartstock-privacy/privacy-policy.html';
+  static const String termsOfServiceUrl =
+      'https://ibrahimsemih.github.io/smartstock-privacy/terms-of-service.html';
 }
 
 class AppTheme {
   // Premium Font Family - You can add Google Fonts package for more options
   static const String fontFamily = 'SF Pro Display';
-  
+
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppConstants.primaryColor,
@@ -119,7 +127,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-      
+
       // Premium AppBar
       appBarTheme: const AppBarTheme(
         centerTitle: true,
@@ -135,18 +143,16 @@ class AppTheme {
           letterSpacing: -0.5,
         ),
       ),
-      
+
       // Premium Card Theme
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: Colors.white,
         margin: EdgeInsets.zero,
         shadowColor: Colors.black.withOpacity(0.08),
       ),
-      
+
       // Premium Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -161,17 +167,29 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.primaryColor, width: 2),
+          borderSide: const BorderSide(
+            color: AppConstants.primaryColor,
+            width: 2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.errorColor, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppConstants.errorColor,
+            width: 1.5,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.errorColor, width: 2),
+          borderSide: const BorderSide(
+            color: AppConstants.errorColor,
+            width: 2,
+          ),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
+        ),
         hintStyle: TextStyle(
           color: Colors.grey[500],
           fontWeight: FontWeight.w500,
@@ -181,7 +199,7 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
       ),
-      
+
       // Premium Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -199,7 +217,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Filled Button
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -214,7 +232,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Outlined Button
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -231,7 +249,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Text Button
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -247,7 +265,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Text Theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -304,19 +322,20 @@ class AppTheme {
           letterSpacing: 0.3,
         ),
       ),
-      
+
       // Premium FAB
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 8,
         highlightElevation: 12,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: AppConstants.primaryColor,
         foregroundColor: Colors.white,
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        extendedPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
       ),
-      
+
       // Premium Bottom Navigation
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
@@ -343,33 +362,23 @@ class AppTheme {
               size: 26,
             );
           }
-          return IconThemeData(
-            color: Colors.grey[600],
-            size: 24,
-          );
+          return IconThemeData(color: Colors.grey[600], size: 24);
         }),
       ),
-      
+
       // Premium Chip Theme
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFF1F5F9),
         selectedColor: AppConstants.primaryColor.withOpacity(0.15),
-        labelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      
+
       // Premium Dialog Theme
       dialogTheme: DialogThemeData(
         elevation: 24,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         titleTextStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -377,7 +386,7 @@ class AppTheme {
           letterSpacing: -0.3,
         ),
       ),
-      
+
       // Premium Bottom Sheet Theme
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
@@ -386,32 +395,28 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
-      
+
       // Premium Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 8,
         contentTextStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
       ),
-      
+
       // Premium Divider Theme
       dividerTheme: DividerThemeData(
         color: Colors.grey[200],
         thickness: 1,
         space: 32,
       ),
-      
+
       // Premium List Tile Theme
       listTileTheme: ListTileThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         titleTextStyle: const TextStyle(
           fontSize: 16,
@@ -441,7 +446,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: const Color(0xFF0F172A),
-      
+
       // Premium Dark AppBar
       appBarTheme: const AppBarTheme(
         centerTitle: true,
@@ -457,17 +462,15 @@ class AppTheme {
           letterSpacing: -0.5,
         ),
       ),
-      
+
       // Premium Dark Card Theme
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: const Color(0xFF1E293B),
         margin: EdgeInsets.zero,
       ),
-      
+
       // Premium Dark Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -482,17 +485,29 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.primaryLight, width: 2),
+          borderSide: const BorderSide(
+            color: AppConstants.primaryLight,
+            width: 2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.errorLight, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppConstants.errorLight,
+            width: 1.5,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppConstants.errorLight, width: 2),
+          borderSide: const BorderSide(
+            color: AppConstants.errorLight,
+            width: 2,
+          ),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
+        ),
         hintStyle: const TextStyle(
           color: Color(0xFF64748B),
           fontWeight: FontWeight.w500,
@@ -502,7 +517,7 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
       ),
-      
+
       // Premium Dark Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -520,7 +535,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Dark Filled Button
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -535,7 +550,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Dark Outlined Button
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -552,7 +567,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Dark Text Button
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -568,7 +583,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Premium Dark Text Theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
@@ -626,19 +641,20 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      
+
       // Premium Dark FAB
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 8,
         highlightElevation: 12,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: AppConstants.primaryLight,
         foregroundColor: Colors.white,
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        extendedPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
       ),
-      
+
       // Premium Dark Bottom Navigation
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
@@ -665,13 +681,10 @@ class AppTheme {
               size: 26,
             );
           }
-          return const IconThemeData(
-            color: Color(0xFF64748B),
-            size: 24,
-          );
+          return const IconThemeData(color: Color(0xFF64748B), size: 24);
         }),
       ),
-      
+
       // Premium Dark Chip Theme
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFF1E293B),
@@ -682,18 +695,14 @@ class AppTheme {
           color: Colors.white,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      
+
       // Premium Dark Dialog Theme
       dialogTheme: DialogThemeData(
         backgroundColor: const Color(0xFF1E293B),
         elevation: 24,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         titleTextStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -701,7 +710,7 @@ class AppTheme {
           letterSpacing: -0.3,
         ),
       ),
-      
+
       // Premium Dark Bottom Sheet Theme
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Color(0xFF1E293B),
@@ -710,14 +719,12 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
-      
+
       // Premium Dark Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xFF334155),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 8,
         contentTextStyle: const TextStyle(
           fontSize: 14,
@@ -725,14 +732,14 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      
+
       // Premium Dark Divider Theme
       dividerTheme: const DividerThemeData(
         color: Color(0xFF334155),
         thickness: 1,
         space: 32,
       ),
-      
+
       // Premium Dark List Tile Theme
       listTileTheme: const ListTileThemeData(
         shape: RoundedRectangleBorder(

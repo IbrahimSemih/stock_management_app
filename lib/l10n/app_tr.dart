@@ -20,8 +20,7 @@ const Map<String, String> appTr = {
   'login_failed': 'Giriş başarısız',
   'register_success': 'Kayıt başarılı',
   'logout_confirm': 'Çıkış yapmak istediğinize emin misiniz?',
-  'offline_mode': 'Çevrimdışı Mod',
-  'continue_offline': 'Çevrimdışı Devam Et',
+  'not_logged_in': 'Giriş yapılmadı',
   'or': 'veya',
   
   // Dashboard
@@ -169,6 +168,14 @@ const Map<String, String> appTr = {
   'currency': 'Para Birimi',
   'select_currency': 'Para Birimi Seç',
   'data_management': 'Veri Yönetimi',
+  'sync': 'Senkronizasyon',
+  'enable_sync': 'Veri Yedekleme',
+  'sync_description': 'Verilerinizi yedekleyin',
+  'sync_now': 'Şimdi Senkronize Et',
+  'last_sync': 'Son Senkronizasyon',
+  'never_synced': 'Henüz senkronize edilmedi',
+  'sync_success': 'Senkronizasyon başarılı',
+  'sync_failed': 'Senkronizasyon başarısız',
   'clear_cache': 'Önbelleği Temizle',
   'cache_cleared': 'Önbellek temizlendi',
   'account': 'Hesap',
@@ -177,6 +184,8 @@ const Map<String, String> appTr = {
   'version': 'Versiyon',
   'privacy_policy': 'Gizlilik Politikası',
   'terms_of_service': 'Kullanım Koşulları',
+  'view_privacy_policy': 'Gizlilik Politikasını Görüntüle',
+  'view_terms_of_service': 'Kullanım Koşullarını Görüntüle',
   'rate_app': 'Uygulamayı Değerlendir',
   'contact_support': 'Destek ile İletişim',
   
@@ -325,7 +334,7 @@ const Map<String, String> appTr = {
   'email_placeholder': 'ornek@email.com',
   
   // Firebase Errors
-  'firebase_not_initialized': 'Firebase başlatılmamış. Lütfen offline kullan seçeneğini kullanın.',
+  'firebase_not_initialized': 'Firebase başlatılmamış. Lütfen çevrimdışı seçeneğini kullanın.',
   'firebase_not_initialized_password': 'Firebase başlatılmamış. Şifre sıfırlama özelliği kullanılamaz.',
   'error_logout': 'Çıkış yapılırken hata oluştu',
   'error_generic': 'Bir hata oluştu',

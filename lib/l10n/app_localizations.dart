@@ -10,8 +10,8 @@ class AppLocalizations {
   
   /// Supported locales
   static const supportedLocales = [
-    Locale('en', 'US'),
     Locale('tr', 'TR'),
+    Locale('en', 'US'),
   ];
   
   /// Get the localization instance from context
@@ -25,11 +25,11 @@ class AppLocalizations {
   /// Get translations based on language code
   static Map<String, String> _getTranslations(String languageCode) {
     switch (languageCode) {
-      case 'tr':
-        return appTr;
       case 'en':
-      default:
         return appEn;
+      case 'tr':
+      default:
+        return appTr;
     }
   }
   
@@ -46,33 +46,33 @@ class AppLocalizations {
   /// Get current language name
   String get currentLanguageName {
     switch (locale.languageCode) {
-      case 'tr':
-        return 'Türkçe';
       case 'en':
-      default:
         return 'English';
+      case 'tr':
+      default:
+        return 'Türkçe';
     }
   }
   
   /// Get language name by code
   static String getLanguageName(String code) {
     switch (code) {
-      case 'tr':
-        return 'Türkçe';
       case 'en':
-      default:
         return 'English';
+      case 'tr':
+      default:
+        return 'Türkçe';
     }
   }
   
   /// Get language flag by code
   static String getLanguageFlag(String code) {
     switch (code) {
-      case 'tr':
-        return '🇹🇷';
       case 'en':
-      default:
         return '🇬🇧';
+      case 'tr':
+      default:
+        return '🇹🇷';
     }
   }
 }
