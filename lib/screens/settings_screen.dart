@@ -139,7 +139,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Icon(Icons.chevron_right, size: 20),
                           onTap: syncProvider.isSyncing
@@ -148,13 +150,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         if (syncProvider.syncError != null)
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             child: Text(
                               syncProvider.syncError!,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
+                              style: TextStyle(color: Colors.red, fontSize: 12),
                             ),
                           ),
                       ],
@@ -165,31 +167,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
           if (authProvider.user != null) const SizedBox(height: 24),
-
-          // Veritabanı
-          _SettingsSection(
-            title: context.tr('data_management'),
-            children: [
-              _SettingsTile(
-                icon: AppIcons.backup,
-                title: context.tr('backup_database'),
-                subtitle: context.tr('backup'),
-                onTap: () {
-                  Navigator.pushNamed(context, AppConstants.routeReports);
-                },
-              ),
-              _SettingsTile(
-                icon: AppIcons.restore,
-                title: context.tr('restore_database'),
-                subtitle: context.tr('restore'),
-                onTap: () {
-                  Navigator.pushNamed(context, AppConstants.routeReports);
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
 
           // Hesap
           _SettingsSection(
@@ -249,7 +226,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: AppIcons.logout,
                 title: context.tr('logout'),
                 subtitle:
-                    authProvider.user?.email ?? context.tr('not_logged_in'),
+                    authProvider.user?.displayName ??
+                    authProvider.user?.email?.split('@')[0] ??
+                    context.tr('not_logged_in'),
                 isDestructive: true,
                 onTap: () async {
                   final confirmed = await showDialog<bool>(
@@ -332,9 +311,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success
-                ? context.tr('sync_success')
-                : context.tr('sync_failed'),
+            success ? context.tr('sync_success') : context.tr('sync_failed'),
           ),
           backgroundColor: success ? Colors.green : Colors.red,
         ),
@@ -370,9 +347,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            success
-                ? context.tr('sync_success')
-                : context.tr('sync_failed'),
+            success ? context.tr('sync_success') : context.tr('sync_failed'),
           ),
           backgroundColor: success ? Colors.green : Colors.red,
         ),

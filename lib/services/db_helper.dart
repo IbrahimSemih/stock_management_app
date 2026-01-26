@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
   static const _dbName = 'smartstock.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
   static Database? _database;
   DBHelper._privateConstructor();
   static final DBHelper instance = DBHelper._privateConstructor();
@@ -36,16 +36,15 @@ class DBHelper {
   Future<void> _ensureColumnsExist(Database db) async {
     try {
       // products tablosundaki kolonları kontrol et
-      final tableInfo = await db.rawQuery('PRAGMA table_info(products)');
-      final columnNames = tableInfo.map((row) => row['name'] as String).toSet();
+      final productsTableInfo = await db.rawQuery('PRAGMA table_info(products)');
+      final productsColumnNames = productsTableInfo.map((row) => row['name'] as String).toSet();
       
       // brand_id kolonu yoksa ekle
-      if (!columnNames.contains('brand_id')) {
+      if (!productsColumnNames.contains('brand_id')) {
         try {
           await db.execute('ALTER TABLE products ADD COLUMN brand_id INTEGER');
           debugPrint('brand_id kolonu eklendi');
         } catch (e) {
-          // Kolon zaten varsa sessizce devam et
           if (e.toString().contains('duplicate column')) {
             debugPrint('brand_id kolonu zaten mevcut');
           } else {
@@ -55,18 +54,104 @@ class DBHelper {
       }
       
       // model kolonu yoksa ekle
-      if (!columnNames.contains('model')) {
+      if (!productsColumnNames.contains('model')) {
         try {
           await db.execute('ALTER TABLE products ADD COLUMN model TEXT');
           debugPrint('model kolonu eklendi');
         } catch (e) {
-          // Kolon zaten varsa sessizce devam et
           if (e.toString().contains('duplicate column')) {
             debugPrint('model kolonu zaten mevcut');
           } else {
             debugPrint('model kolonu eklenirken hata: $e');
           }
         }
+      }
+      
+      // user_id kolonu yoksa ekle (products)
+      if (!productsColumnNames.contains('user_id')) {
+        try {
+          await db.execute('ALTER TABLE products ADD COLUMN user_id TEXT');
+          debugPrint('user_id kolonu products tablosuna eklendi');
+        } catch (e) {
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('user_id kolonu products tablosunda zaten mevcut');
+          } else {
+            debugPrint('user_id kolonu products tablosuna eklenirken hata: $e');
+          }
+        }
+      }
+      
+      // categories tablosundaki kolonları kontrol et
+      final categoriesTableInfo = await db.rawQuery('PRAGMA table_info(categories)');
+      final categoriesColumnNames = categoriesTableInfo.map((row) => row['name'] as String).toSet();
+      
+      if (!categoriesColumnNames.contains('user_id')) {
+        try {
+          await db.execute('ALTER TABLE categories ADD COLUMN user_id TEXT');
+          debugPrint('user_id kolonu categories tablosuna eklendi');
+        } catch (e) {
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('user_id kolonu categories tablosunda zaten mevcut');
+          } else {
+            debugPrint('user_id kolonu categories tablosuna eklenirken hata: $e');
+          }
+        }
+      }
+      
+      // brands tablosundaki kolonları kontrol et
+      final brandsTableInfo = await db.rawQuery('PRAGMA table_info(brands)');
+      final brandsColumnNames = brandsTableInfo.map((row) => row['name'] as String).toSet();
+      
+      if (!brandsColumnNames.contains('user_id')) {
+        try {
+          await db.execute('ALTER TABLE brands ADD COLUMN user_id TEXT');
+          debugPrint('user_id kolonu brands tablosuna eklendi');
+        } catch (e) {
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('user_id kolonu brands tablosunda zaten mevcut');
+          } else {
+            debugPrint('user_id kolonu brands tablosuna eklenirken hata: $e');
+          }
+        }
+      }
+      
+      // stock_history tablosundaki kolonları kontrol et
+      final stockHistoryTableInfo = await db.rawQuery('PRAGMA table_info(stock_history)');
+      final stockHistoryColumnNames = stockHistoryTableInfo.map((row) => row['name'] as String).toSet();
+      
+      if (!stockHistoryColumnNames.contains('user_id')) {
+        try {
+          await db.execute('ALTER TABLE stock_history ADD COLUMN user_id TEXT');
+          debugPrint('user_id kolonu stock_history tablosuna eklendi');
+        } catch (e) {
+          if (e.toString().contains('duplicate column')) {
+            debugPrint('user_id kolonu stock_history tablosunda zaten mevcut');
+          } else {
+            debugPrint('user_id kolonu stock_history tablosuna eklenirken hata: $e');
+          }
+        }
+      }
+      
+      // price_history tablosundaki kolonları kontrol et
+      try {
+        final priceHistoryTableInfo = await db.rawQuery('PRAGMA table_info(price_history)');
+        final priceHistoryColumnNames = priceHistoryTableInfo.map((row) => row['name'] as String).toSet();
+        
+        if (!priceHistoryColumnNames.contains('user_id')) {
+          try {
+            await db.execute('ALTER TABLE price_history ADD COLUMN user_id TEXT');
+            debugPrint('user_id kolonu price_history tablosuna eklendi');
+          } catch (e) {
+            if (e.toString().contains('duplicate column')) {
+              debugPrint('user_id kolonu price_history tablosunda zaten mevcut');
+            } else {
+              debugPrint('user_id kolonu price_history tablosuna eklenirken hata: $e');
+            }
+          }
+        }
+      } catch (e) {
+        // price_history tablosu yoksa sessizce devam et
+        debugPrint('price_history tablosu kontrol edilemedi: $e');
       }
     } catch (e) {
       debugPrint('Kolon kontrolü hatası: $e');
@@ -160,9 +245,6 @@ class DBHelper {
         ''');
 
         // Add brand_id and model columns to products table
-        // SQLite doesn't support adding FOREIGN KEY constraints via ALTER TABLE
-        // So we just add the columns without the constraint
-        // Önce kolonların var olup olmadığını kontrol et
         final tableInfo = await db.rawQuery('PRAGMA table_info(products)');
         final columnNames = tableInfo.map((row) => row['name'] as String).toSet();
         
@@ -185,7 +267,24 @@ class DBHelper {
         }
       } catch (e) {
         debugPrint('Migration error: $e');
-        // Migration hatası olsa bile devam et
+      }
+    }
+    
+    if (oldVersion < 3) {
+      try {
+        // Add user_id columns to all tables
+        await db.execute('ALTER TABLE products ADD COLUMN user_id TEXT');
+        await db.execute('ALTER TABLE categories ADD COLUMN user_id TEXT');
+        await db.execute('ALTER TABLE brands ADD COLUMN user_id TEXT');
+        await db.execute('ALTER TABLE stock_history ADD COLUMN user_id TEXT');
+        try {
+          await db.execute('ALTER TABLE price_history ADD COLUMN user_id TEXT');
+        } catch (e) {
+          debugPrint('price_history user_id might already exist: $e');
+        }
+        debugPrint('user_id columns added in migration to version 3');
+      } catch (e) {
+        debugPrint('Migration to version 3 error: $e');
       }
     }
   }
@@ -240,5 +339,34 @@ class DBHelper {
       await _database!.close();
       _database = null;
     }
+  }
+
+  /// Belirli bir kullanıcının tüm verilerini siler
+  Future<void> clearUserData(String? userId) async {
+    if (userId == null) {
+      // Kullanıcı ID yoksa, user_id NULL olan veya hiç user_id olmayan tüm verileri sil
+      await delete('products', 'user_id IS NULL OR user_id = ?', ['']);
+      await delete('categories', 'user_id IS NULL OR user_id = ?', ['']);
+      await delete('brands', 'user_id IS NULL OR user_id = ?', ['']);
+      await delete('stock_history', 'user_id IS NULL OR user_id = ?', ['']);
+      try {
+        await delete('price_history', 'user_id IS NULL OR user_id = ?', ['']);
+      } catch (e) {
+        debugPrint('Error clearing price_history: $e');
+      }
+    } else {
+      // Belirli kullanıcının verilerini sil
+      await delete('products', 'user_id = ?', [userId]);
+      await delete('categories', 'user_id = ?', [userId]);
+      await delete('brands', 'user_id = ?', [userId]);
+      await delete('stock_history', 'user_id = ?', [userId]);
+      try {
+        await delete('price_history', 'user_id = ?', [userId]);
+      } catch (e) {
+        debugPrint('Error clearing price_history: $e');
+      }
+    }
+    
+    debugPrint('User data cleared for userId: $userId');
   }
 }

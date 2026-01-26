@@ -3,7 +3,7 @@ const Map<String, String> appTr = {
   // App
   'app_name': 'SmartStock',
   'app_slogan': 'Akıllı Stok Yönetimi',
-  
+
   // Authentication
   'login': 'Giriş Yap',
   'register': 'Kayıt Ol',
@@ -22,7 +22,7 @@ const Map<String, String> appTr = {
   'logout_confirm': 'Çıkış yapmak istediğinize emin misiniz?',
   'not_logged_in': 'Giriş yapılmadı',
   'or': 'veya',
-  
+
   // Dashboard
   'dashboard': 'Ana Sayfa',
   'welcome': 'Hoş Geldiniz',
@@ -39,7 +39,7 @@ const Map<String, String> appTr = {
   'recent_products': 'Son Eklenen Ürünler',
   'see_all': 'Tümünü Gör',
   'no_data': 'Veri bulunamadı',
-  
+
   // Products
   'products': 'Ürünler',
   'product': 'Ürün',
@@ -79,7 +79,7 @@ const Map<String, String> appTr = {
   'sort_price': 'Fiyat',
   'sort_stock': 'Stok',
   'sort_date': 'Tarih',
-  
+
   // Categories
   'categories': 'Kategoriler',
   'category_name': 'Kategori Adı',
@@ -89,12 +89,13 @@ const Map<String, String> appTr = {
   'category_added': 'Kategori başarıyla eklendi',
   'category_updated': 'Kategori başarıyla güncellendi',
   'category_deleted': 'Kategori başarıyla silindi',
-  'delete_category_confirm': 'Bu kategoriyi silmek istediğinize emin misiniz? Bu kategorideki ürünler kategorisiz kalacak.',
+  'delete_category_confirm':
+      'Bu kategoriyi silmek istediğinize emin misiniz? Bu kategorideki ürünler kategorisiz kalacak.',
   'no_categories': 'Henüz kategori yok',
   'uncategorized': 'Kategorisiz',
   'select_category': 'Kategori Seç',
   'all_categories': 'Tüm Kategoriler',
-  
+
   // Brands
   'brands': 'Markalar',
   'brand_name': 'Marka Adı',
@@ -109,7 +110,7 @@ const Map<String, String> appTr = {
   'select_brand': 'Marka Seç',
   'all_brands': 'Tüm Markalar',
   'no_brand': 'Marka Yok',
-  
+
   // Stock
   'stock_entry': 'Stok Girişi',
   'stock_exit': 'Stok Çıkışı',
@@ -128,7 +129,7 @@ const Map<String, String> appTr = {
   'stock_updated': 'Stok başarıyla güncellendi',
   'insufficient_stock': 'Yetersiz stok',
   'no_stock_history': 'Henüz stok geçmişi yok',
-  
+
   // Reports
   'reports': 'Raporlar',
   'export': 'Dışa Aktar',
@@ -144,13 +145,14 @@ const Map<String, String> appTr = {
   'backup_failed': 'Yedekleme başarısız',
   'restore_success': 'Geri yükleme başarılı',
   'restore_failed': 'Geri yükleme başarısız',
-  'restore_confirm': 'Mevcut veritabanı silinecek ve seçilen yedek yüklenecek. Bu işlem geri alınamaz. Emin misiniz?',
+  'restore_confirm':
+      'Mevcut veritabanı silinecek ve seçilen yedek yüklenecek. Bu işlem geri alınamaz. Emin misiniz?',
   'share': 'Paylaş',
   'download': 'İndir',
   'inventory_report': 'Envanter Raporu',
   'stock_report': 'Stok Raporu',
   'price_history': 'Fiyat Geçmişi',
-  
+
   // Settings
   'settings': 'Ayarlar',
   'appearance': 'Görünüm',
@@ -188,7 +190,7 @@ const Map<String, String> appTr = {
   'view_terms_of_service': 'Kullanım Koşullarını Görüntüle',
   'rate_app': 'Uygulamayı Değerlendir',
   'contact_support': 'Destek ile İletişim',
-  
+
   // Profile
   'edit_profile': 'Profili Düzenle',
   'display_name': 'Görünen Ad',
@@ -196,8 +198,9 @@ const Map<String, String> appTr = {
   'company': 'Şirket',
   'profile_updated': 'Profil başarıyla güncellendi',
   'delete_account': 'Hesabı Sil',
-  'delete_account_confirm': 'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
-  
+  'delete_account_confirm':
+      'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+
   // Common
   'save': 'Kaydet',
   'cancel': 'İptal',
@@ -248,16 +251,19 @@ const Map<String, String> appTr = {
   'total': 'Toplam',
   'items': 'öğe',
   'piece': 'adet',
-  
+
   // Onboarding
   'onboarding_title_1': 'Stoklarınızı Takip Edin',
-  'onboarding_desc_1': 'Tüm ürünlerinizi tek bir yerden kolayca yönetin ve gerçek zamanlı stok takibi yapın.',
+  'onboarding_desc_1':
+      'Tüm ürünlerinizi tek bir yerden kolayca yönetin ve gerçek zamanlı stok takibi yapın.',
   'onboarding_title_2': 'Barkod Tarayın',
-  'onboarding_desc_2': 'Kameranızla barkod tarayarak ürünleri hızlıca ekleyin veya bulun.',
+  'onboarding_desc_2':
+      'Kameranızla barkod tarayarak ürünleri hızlıca ekleyin veya bulun.',
   'onboarding_title_3': 'Rapor Oluşturun',
-  'onboarding_desc_3': 'Verilerinizi PDF veya Excel olarak dışa aktarın ve ekibinizle paylaşın.',
+  'onboarding_desc_3':
+      'Verilerinizi PDF veya Excel olarak dışa aktarın ve ekibinizle paylaşın.',
   'get_started': 'Başla',
-  
+
   // Validation
   'enter_product_name': 'Lütfen ürün adını girin',
   'enter_valid_price': 'Lütfen geçerli bir fiyat girin',
@@ -265,21 +271,21 @@ const Map<String, String> appTr = {
   'select_category_first': 'Lütfen bir kategori seçin',
   'enter_category_name': 'Lütfen kategori adını girin',
   'enter_brand_name': 'Lütfen marka adını girin',
-  
+
   // Barcode
   'point_camera': 'Kamerayı barkoda tutun',
   'no_barcode_found': 'Barkod bulunamadı',
   'barcode_scanned': 'Barkod tarandı',
   'manual_entry': 'Manuel Giriş',
   'enter_barcode': 'Barkod Girin',
-  
+
   // Empty States
   'empty_products': 'Ürün bulunamadı',
   'empty_categories': 'Kategori bulunamadı',
   'empty_brands': 'Marka bulunamadı',
   'empty_history': 'Geçmiş bulunamadı',
   'start_adding': 'Öğe ekleyerek başlayın',
-  
+
   // Additional
   'clear': 'Temizle',
   'change': 'Değiştir',
@@ -310,18 +316,19 @@ const Map<String, String> appTr = {
   'password_change_failed': 'Şifre değiştirme başarısız',
   'account_deleted': 'Hesap başarıyla silindi',
   'account_deletion_failed': 'Hesap silme başarısız',
-  'email_verification_sent': 'Doğrulama e-postası gönderildi. Lütfen gelen kutunuzu kontrol edin.',
+  'email_verification_sent':
+      'Doğrulama e-postası gönderildi. Lütfen gelen kutunuzu kontrol edin.',
   'enter_password_to_confirm': 'Hesap silmeyi onaylamak için şifrenizi girin',
   'please_enter_password': 'Lütfen şifrenizi girin',
-  
+
   // Greetings
   'good_morning': 'Günaydın! ☀️',
   'good_afternoon': 'İyi günler! 🌤️',
   'good_evening': 'İyi akşamlar! 🌙',
-  
+
   // Splash Screen
   'stock_management_system': 'Stok Yönetim Sistemi',
-  
+
   // Login Screen
   'login_subtitle': 'Hesabınıza giriş yapın',
   'register_subtitle': 'Yeni hesap oluşturun',
@@ -330,12 +337,20 @@ const Map<String, String> appTr = {
   'please_enter_name': 'Lütfen adınızı girin',
   'please_enter_email': 'Lütfen e-posta adresinizi girin',
   'password_reset_sent': 'Şifre sıfırlama e-postası gönderildi',
+  'password_reset_confirmation':
+      'Şifre sıfırlama bağlantısı aşağıdaki e-posta adresine gönderilecek:',
+  'sending_reset_email': 'Şifre sıfırlama e-postası gönderiliyor...',
+  'check_email_instructions':
+      'E-posta kutunuzu kontrol edin ve şifre sıfırlama bağlantısına tıklayın.',
+  'send': 'Gönder',
   'error_occurred': 'Bir hata oluştu',
   'email_placeholder': 'ornek@email.com',
-  
+
   // Firebase Errors
-  'firebase_not_initialized': 'Firebase başlatılmamış. Lütfen çevrimdışı seçeneğini kullanın.',
-  'firebase_not_initialized_password': 'Firebase başlatılmamış. Şifre sıfırlama özelliği kullanılamaz.',
+  'firebase_not_initialized':
+      'Firebase başlatılmamış. Lütfen çevrimdışı seçeneğini kullanın.',
+  'firebase_not_initialized_password':
+      'Firebase başlatılmamış. Şifre sıfırlama özelliği kullanılamaz.',
   'error_logout': 'Çıkış yapılırken hata oluştu',
   'error_generic': 'Bir hata oluştu',
   'error_weak_password': 'Şifre çok zayıf',
@@ -344,9 +359,10 @@ const Map<String, String> appTr = {
   'error_wrong_password': 'Yanlış şifre',
   'error_invalid_email': 'Geçersiz e-posta adresi',
   'error_user_disabled': 'Kullanıcı devre dışı bırakılmış',
-  'error_too_many_requests': 'Çok fazla istek. Lütfen daha sonra tekrar deneyin',
+  'error_too_many_requests':
+      'Çok fazla istek. Lütfen daha sonra tekrar deneyin',
   'error_operation_not_allowed': 'Bu işlem izin verilmiyor',
-  
+
   // Reports Screen
   'export_section': 'Dışa Aktarma',
   'export_to_excel': 'Excel\'e Aktar',
@@ -365,13 +381,15 @@ const Map<String, String> appTr = {
   'backup_section': 'Yedekleme',
   'backup_database_desc': 'Tüm verilerinizin yedeğini alın',
   'restore_database_desc': 'Daha önce aldığınız yedeği geri yükleyin',
-  'export_info': 'Dışa aktarılan dosyalar paylaşım menüsü ile başka uygulamalara gönderilebilir.',
+  'export_info':
+      'Dışa aktarılan dosyalar paylaşım menüsü ile başka uygulamalara gönderilebilir.',
   'excel_created': 'Excel dosyası oluşturuldu ve paylaşıldı',
   'pdf_created': 'PDF dosyası oluşturuldu ve paylaşıldı',
   'database_backed_up': 'Veritabanı yedeklendi',
   'database_restored': 'Veritabanı geri yüklendi ve yenilendi',
   'select_db_file': 'Lütfen .db uzantılı bir yedek dosyası seçin',
-  'restore_warning': 'Mevcut veritabanı silinecek ve seçilen yedek yüklenecek. Bu işlem geri alınamaz. Devam etmek istediğinize emin misiniz?',
+  'restore_warning':
+      'Mevcut veritabanı silinecek ve seçilen yedek yüklenecek. Bu işlem geri alınamaz. Devam etmek istediğinize emin misiniz?',
   'date_range': 'Tarih Aralığı',
   'total_in': 'Toplam Giriş',
   'total_out': 'Toplam Çıkış',
@@ -385,5 +403,11 @@ const Map<String, String> appTr = {
   'movements': 'hareket',
   'in_movement': 'Giriş',
   'out_movement': 'Çıkış',
-};
 
+  // Terms Acceptance
+  'i_accept_the': 'Kabul ediyorum:',
+  'and': 've',
+  'documents': 'belgelerini',
+  'please_accept_terms':
+      'Hesap oluşturabilmek için Kullanım Koşulları ve Gizlilik Politikasını kabul etmelisiniz',
+};

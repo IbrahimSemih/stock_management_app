@@ -29,36 +29,10 @@ class SmartStockApp extends StatelessWidget {
           },
         ),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(
-          create: (_) {
-            final provider = ProductProvider();
-            // Async işlemi başlat, hata oluşursa yakala
-            provider.loadAllProducts().catchError((e) {
-              debugPrint('Error loading products: $e');
-            });
-            return provider;
-          },
-        ),
-        ChangeNotifierProvider(
-          create: (_) {
-            final provider = CategoryProvider();
-            // Async işlemi başlat, hata oluşursa yakala
-            provider.loadCategories().catchError((e) {
-              debugPrint('Error loading categories: $e');
-            });
-            return provider;
-          },
-        ),
-        ChangeNotifierProvider(
-          create: (_) {
-            final provider = BrandProvider();
-            // Async işlemi başlat, hata oluşursa yakala
-            provider.loadBrands().catchError((e) {
-              debugPrint('Error loading brands: $e');
-            });
-            return provider;
-          },
-        ),
+        // Veriler login sonrası yüklenecek, app başlangıcında yükleme yapılmayacak
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => BrandProvider()),
         ChangeNotifierProvider(create: (_) => StockHistoryProvider()),
         ChangeNotifierProvider(create: (_) => PriceHistoryProvider()),
         ChangeNotifierProvider(create: (_) => SyncProvider()),
@@ -83,9 +57,7 @@ class SmartStockApp extends StatelessWidget {
             onGenerateRoute: AppRoutes.generateRoute,
             builder: (context, child) {
               // Her sayfa için status bar wrapper ile sarmala
-              return StatusBarWrapper(
-                child: child ?? const SizedBox.shrink(),
-              );
+              return StatusBarWrapper(child: child ?? const SizedBox.shrink());
             },
           );
         },

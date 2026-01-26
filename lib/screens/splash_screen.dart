@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/product_provider.dart';
+import '../providers/category_provider.dart';
+import '../providers/brand_provider.dart';
+import '../providers/stock_history_provider.dart';
 import '../utils/constants.dart';
 import '../l10n/app_localizations.dart';
 
@@ -68,6 +73,15 @@ class _SplashScreenState extends State<SplashScreen>
         targetRoute = AppConstants.routeOnboarding;
       } else if (isLoggedIn) {
         targetRoute = AppConstants.routeDashboard;
+        // Geri dönen kullanıcı için verileri yükle
+        if (mounted) {
+          await Future.wait([
+            context.read<ProductProvider>().loadAllProducts(),
+            context.read<CategoryProvider>().loadCategories(),
+            context.read<BrandProvider>().loadBrands(),
+            context.read<StockHistoryProvider>().loadHistory(),
+          ]);
+        }
       } else {
         targetRoute = AppConstants.routeLogin;
       }

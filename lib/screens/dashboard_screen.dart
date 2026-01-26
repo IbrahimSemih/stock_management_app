@@ -78,19 +78,6 @@ class DashboardScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       child: Row(
         children: [
-          // Menu Button
-          PremiumIconButton(
-            icon: Icons.menu_rounded,
-            onPressed: () {
-              // MainNavigation'ın drawer'ını aç
-              final scaffold = Scaffold.maybeOf(context);
-              if (scaffold?.hasDrawer ?? false) {
-                scaffold?.openDrawer();
-              }
-            },
-          ),
-          const SizedBox(width: 16),
-
           // Title
           Expanded(
             child: Column(
@@ -225,6 +212,11 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildWelcomeBanner(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.user;
+    final userName =
+        user?.displayName ?? user?.email?.split('@')[0] ?? context.tr('user');
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -285,7 +277,7 @@ class DashboardScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
-                      Icons.rocket_launch_rounded,
+                      Icons.warehouse_rounded,
                       color: Colors.white,
                       size: 24,
                     ),
@@ -300,16 +292,25 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.auto_awesome, color: Colors.amber, size: 16),
-                        SizedBox(width: 6),
-                        Text(
-                          'Pro',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                        const Icon(
+                          Icons.person_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            userName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],

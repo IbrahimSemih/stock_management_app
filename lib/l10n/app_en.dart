@@ -3,7 +3,7 @@ const Map<String, String> appEn = {
   // App
   'app_name': 'SmartStock',
   'app_slogan': 'Smart Inventory Management',
-  
+
   // Authentication
   'login': 'Login',
   'register': 'Register',
@@ -22,7 +22,7 @@ const Map<String, String> appEn = {
   'logout_confirm': 'Are you sure you want to logout?',
   'not_logged_in': 'Not logged in',
   'or': 'or',
-  
+
   // Dashboard
   'dashboard': 'Dashboard',
   'welcome': 'Welcome',
@@ -39,7 +39,7 @@ const Map<String, String> appEn = {
   'recent_products': 'Recent Products',
   'see_all': 'See All',
   'no_data': 'No data available',
-  
+
   // Products
   'products': 'Products',
   'product': 'Product',
@@ -79,7 +79,7 @@ const Map<String, String> appEn = {
   'sort_price': 'Price',
   'sort_stock': 'Stock',
   'sort_date': 'Date',
-  
+
   // Categories
   'categories': 'Categories',
   'category_name': 'Category Name',
@@ -89,12 +89,13 @@ const Map<String, String> appEn = {
   'category_added': 'Category added successfully',
   'category_updated': 'Category updated successfully',
   'category_deleted': 'Category deleted successfully',
-  'delete_category_confirm': 'Are you sure you want to delete this category? Products in this category will become uncategorized.',
+  'delete_category_confirm':
+      'Are you sure you want to delete this category? Products in this category will become uncategorized.',
   'no_categories': 'No categories yet',
   'uncategorized': 'Uncategorized',
   'select_category': 'Select Category',
   'all_categories': 'All Categories',
-  
+
   // Brands
   'brands': 'Brands',
   'brand_name': 'Brand Name',
@@ -109,7 +110,7 @@ const Map<String, String> appEn = {
   'select_brand': 'Select Brand',
   'all_brands': 'All Brands',
   'no_brand': 'No Brand',
-  
+
   // Stock
   'stock_entry': 'Stock Entry',
   'stock_exit': 'Stock Exit',
@@ -128,7 +129,7 @@ const Map<String, String> appEn = {
   'stock_updated': 'Stock updated successfully',
   'insufficient_stock': 'Insufficient stock',
   'no_stock_history': 'No stock history yet',
-  
+
   // Reports
   'reports': 'Reports',
   'export': 'Export',
@@ -144,13 +145,14 @@ const Map<String, String> appEn = {
   'backup_failed': 'Backup failed',
   'restore_success': 'Restore successful',
   'restore_failed': 'Restore failed',
-  'restore_confirm': 'Current database will be deleted and replaced with the backup. This action cannot be undone. Are you sure?',
+  'restore_confirm':
+      'Current database will be deleted and replaced with the backup. This action cannot be undone. Are you sure?',
   'share': 'Share',
   'download': 'Download',
   'inventory_report': 'Inventory Report',
   'stock_report': 'Stock Report',
   'price_history': 'Price History',
-  
+
   // Settings
   'settings': 'Settings',
   'appearance': 'Appearance',
@@ -188,7 +190,7 @@ const Map<String, String> appEn = {
   'view_terms_of_service': 'View Terms of Service',
   'rate_app': 'Rate App',
   'contact_support': 'Contact Support',
-  
+
   // Profile
   'edit_profile': 'Edit Profile',
   'display_name': 'Display Name',
@@ -196,8 +198,9 @@ const Map<String, String> appEn = {
   'company': 'Company',
   'profile_updated': 'Profile updated successfully',
   'delete_account': 'Delete Account',
-  'delete_account_confirm': 'Are you sure you want to delete your account? This action cannot be undone.',
-  
+  'delete_account_confirm':
+      'Are you sure you want to delete your account? This action cannot be undone.',
+
   // Common
   'save': 'Save',
   'cancel': 'Cancel',
@@ -248,16 +251,19 @@ const Map<String, String> appEn = {
   'total': 'Total',
   'items': 'items',
   'piece': 'pcs',
-  
+
   // Onboarding
   'onboarding_title_1': 'Track Your Inventory',
-  'onboarding_desc_1': 'Easily manage all your products in one place with real-time stock tracking.',
+  'onboarding_desc_1':
+      'Easily manage all your products in one place with real-time stock tracking.',
   'onboarding_title_2': 'Scan Barcodes',
-  'onboarding_desc_2': 'Quickly add or find products by scanning barcodes with your camera.',
+  'onboarding_desc_2':
+      'Quickly add or find products by scanning barcodes with your camera.',
   'onboarding_title_3': 'Generate Reports',
-  'onboarding_desc_3': 'Export your data to PDF or Excel and share with your team.',
+  'onboarding_desc_3':
+      'Export your data to PDF or Excel and share with your team.',
   'get_started': 'Get Started',
-  
+
   // Validation
   'enter_product_name': 'Please enter product name',
   'enter_valid_price': 'Please enter a valid price',
@@ -265,21 +271,21 @@ const Map<String, String> appEn = {
   'select_category_first': 'Please select a category',
   'enter_category_name': 'Please enter category name',
   'enter_brand_name': 'Please enter brand name',
-  
+
   // Barcode
   'point_camera': 'Point camera at barcode',
   'no_barcode_found': 'No barcode found',
   'barcode_scanned': 'Barcode scanned',
   'manual_entry': 'Manual Entry',
   'enter_barcode': 'Enter Barcode',
-  
+
   // Empty States
   'empty_products': 'No products found',
   'empty_categories': 'No categories found',
   'empty_brands': 'No brands found',
   'empty_history': 'No history found',
   'start_adding': 'Start by adding some items',
-  
+
   // Additional
   'clear': 'Clear',
   'change': 'Change',
@@ -310,18 +316,20 @@ const Map<String, String> appEn = {
   'password_change_failed': 'Failed to change password',
   'account_deleted': 'Account deleted successfully',
   'account_deletion_failed': 'Failed to delete account',
-  'email_verification_sent': 'Verification email sent. Please check your inbox.',
-  'enter_password_to_confirm': 'Enter your password to confirm account deletion',
+  'email_verification_sent':
+      'Verification email sent. Please check your inbox.',
+  'enter_password_to_confirm':
+      'Enter your password to confirm account deletion',
   'please_enter_password': 'Please enter your password',
-  
+
   // Greetings
   'good_morning': 'Good morning! ☀️',
   'good_afternoon': 'Good afternoon! 🌤️',
   'good_evening': 'Good evening! 🌙',
-  
+
   // Splash Screen
   'stock_management_system': 'Stock Management System',
-  
+
   // Login Screen
   'login_subtitle': 'Sign in to your account',
   'register_subtitle': 'Create a new account',
@@ -330,12 +338,20 @@ const Map<String, String> appEn = {
   'please_enter_name': 'Please enter your name',
   'please_enter_email': 'Please enter your email address',
   'password_reset_sent': 'Password reset email sent',
+  'password_reset_confirmation':
+      'A password reset link will be sent to the following email address:',
+  'sending_reset_email': 'Sending password reset email...',
+  'check_email_instructions':
+      'Please check your email inbox and click on the password reset link.',
+  'send': 'Send',
   'error_occurred': 'An error occurred',
   'email_placeholder': 'example@email.com',
-  
+
   // Firebase Errors
-  'firebase_not_initialized': 'Firebase not initialized. Please use the offline option.',
-  'firebase_not_initialized_password': 'Firebase not initialized. Password reset feature is not available.',
+  'firebase_not_initialized':
+      'Firebase not initialized. Please use the offline option.',
+  'firebase_not_initialized_password':
+      'Firebase not initialized. Password reset feature is not available.',
   'error_logout': 'An error occurred while logging out',
   'error_generic': 'An error occurred',
   'error_weak_password': 'Password is too weak',
@@ -346,7 +362,7 @@ const Map<String, String> appEn = {
   'error_user_disabled': 'User has been disabled',
   'error_too_many_requests': 'Too many requests. Please try again later',
   'error_operation_not_allowed': 'This operation is not allowed',
-  
+
   // Reports Screen
   'export_section': 'Export',
   'export_to_excel': 'Export to Excel',
@@ -365,13 +381,15 @@ const Map<String, String> appEn = {
   'backup_section': 'Backup',
   'backup_database_desc': 'Backup all your data',
   'restore_database_desc': 'Restore from a previous backup',
-  'export_info': 'Exported files can be shared with other apps via the share menu.',
+  'export_info':
+      'Exported files can be shared with other apps via the share menu.',
   'excel_created': 'Excel file created and shared',
   'pdf_created': 'PDF file created and shared',
   'database_backed_up': 'Database backed up',
   'database_restored': 'Database restored and refreshed',
   'select_db_file': 'Please select a .db backup file',
-  'restore_warning': 'Current database will be deleted and replaced with the backup. This cannot be undone. Are you sure?',
+  'restore_warning':
+      'Current database will be deleted and replaced with the backup. This cannot be undone. Are you sure?',
   'date_range': 'Date Range',
   'total_in': 'Total In',
   'total_out': 'Total Out',
@@ -385,5 +403,11 @@ const Map<String, String> appEn = {
   'movements': 'movements',
   'in_movement': 'In',
   'out_movement': 'Out',
-};
 
+  // Terms Acceptance
+  'i_accept_the': 'I accept the',
+  'and': 'and',
+  'documents': '',
+  'please_accept_terms':
+      'You must accept the Terms of Service and Privacy Policy to create an account',
+};
