@@ -191,6 +191,14 @@ const Map<String, String> appTr = {
   'rate_app': 'Uygulamayı Değerlendir',
   'contact_support': 'Destek ile İletişim',
 
+  // Geliştirici Araçları
+  'developer_tools': 'Geliştirici Araçları',
+  'clear_all_data': 'Tüm Verileri Temizle',
+  'clear_all_data_desc': 'Tüm ürünleri ve kayıtları kalıcı olarak sil',
+  'clear_all_data_confirm':
+      'Tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz. Emin misiniz?',
+  'data_cleared': 'Tüm veriler başarıyla temizlendi',
+
   // Profile
   'edit_profile': 'Profili Düzenle',
   'display_name': 'Görünen Ad',

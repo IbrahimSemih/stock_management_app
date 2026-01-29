@@ -108,96 +108,12 @@ class DashboardScreen extends StatelessWidget {
           PremiumIconButton(icon: AppIcons.notifications, onPressed: () {}),
           const SizedBox(width: 12),
 
-          // Settings Menu
-          PopupMenuButton(
-            icon: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                AppIcons.more,
-                color: isDark
-                    ? AppConstants.primaryLight
-                    : AppConstants.primaryColor,
-              ),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            offset: const Offset(0, 56),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppConstants.primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        AppIcons.settings,
-                        size: 18,
-                        color: AppConstants.primaryColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      context.tr('settings'),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, AppConstants.routeSettings);
-                },
-              ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppConstants.errorColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        AppIcons.logout,
-                        size: 18,
-                        color: AppConstants.errorColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      context.tr('logout'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: AppConstants.errorColor,
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () async {
-                  await context.read<AuthProvider>().signOut();
-                  if (context.mounted) {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      AppConstants.routeLogin,
-                    );
-                  }
-                },
-              ),
-            ],
+          // Settings Button
+          PremiumIconButton(
+            icon: AppIcons.settings,
+            onPressed: () {
+              Navigator.pushNamed(context, AppConstants.routeSettings);
+            },
           ),
         ],
       ),

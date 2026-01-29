@@ -191,6 +191,14 @@ const Map<String, String> appEn = {
   'rate_app': 'Rate App',
   'contact_support': 'Contact Support',
 
+  // Developer Tools
+  'developer_tools': 'Developer Tools',
+  'clear_all_data': 'Clear All Data',
+  'clear_all_data_desc': 'Permanently delete all products and records',
+  'clear_all_data_confirm':
+      'All your data will be permanently deleted. This cannot be undone. Are you sure?',
+  'data_cleared': 'All data cleared successfully',
+
   // Profile
   'edit_profile': 'Edit Profile',
   'display_name': 'Display Name',

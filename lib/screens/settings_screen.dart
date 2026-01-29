@@ -12,6 +12,7 @@ import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../widgets/custom_appbar.dart';
 import '../l10n/app_localizations.dart';
+import '../services/db_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -218,7 +219,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // Çıkış
           _SettingsSection(
             title: context.tr('account'),
             children: [
@@ -262,6 +262,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   }
                 },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Geliştirici Araçları
+          _SettingsSection(
+            title: context.tr('developer_tools'),
+            children: [
+              _SettingsTile(
+                icon: Icons.delete_forever_rounded,
+                title: context.tr('clear_all_data'),
+                subtitle: context.tr('clear_all_data_desc'),
+                isDestructive: true,
+                onTap: () => _handleClearAllData(context),
               ),
             ],
           ),
@@ -358,6 +374,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Tarih formatlar
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+
+  Future<void> _handleClearAllData(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr('clear_all_data')),
+        content: Text(context.tr('clear_all_data_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr('cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(context.tr('clear')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final authProvider = context.read<AuthProvider>();
+      await DBHelper.instance.clearUserData(authProvider.user?.uid);
+
+      if (context.mounted) {
+        // Refresh all providers
+        context.read<ProductProvider>().clearData();
+        context.read<CategoryProvider>().clearData();
+        context.read<BrandProvider>().clearData();
+        context.read<StockHistoryProvider>().clearData();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr('data_cleared')),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _launchUrl(String url) async {
