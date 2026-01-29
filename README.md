@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Flutter-3.19+-blue.svg" alt="Flutter Version">
-  <img src="https://img.shields.io/badge/Dart-3.3+-blue.svg" alt="Dart Version">
+  <img src="https://img.shields.io/badge/Flutter-3.9.2+-blue.svg" alt="Flutter Version">
+  <img src="https://img.shields.io/badge/Dart-3.9.2+-blue.svg" alt="Dart Version">
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green.svg" alt="Platform">
   <img src="https://img.shields.io/badge/License-Regular-orange.svg" alt="License">
 </p>
@@ -33,7 +33,8 @@
 - ✅ **Barcode Scanner** - Quick product lookup with camera
 - ✅ **Multi-language** - English and Turkish support
 - ✅ **Export Reports** - PDF and Excel export functionality
-- ✅ **Cloud Backup** - Supabase integration for data safety
+- ✅ **Cloud Backup** - Firebase Firestore integration for data safety
+- ✅ **User Data Isolation** - Each account's data is completely separate and secure
 - ✅ **Cross-Platform** - Android and iOS support
 
 ---
@@ -66,11 +67,12 @@
 - Database backup & restore
 - Share reports via apps
 
-### 🔐 Authentication
-- Supabase Authentication
+### 🔐 Authentication & Data Security
+- Firebase Authentication
 - Email/password login
 - Offline mode support
 - User profile management
+- **User-specific data isolation** - Each account's data is completely separate
 
 ### 🎨 Customization
 - Light/Dark theme
@@ -108,10 +110,10 @@
 
 ### Prerequisites
 
-- Flutter SDK 3.19 or higher
-- Dart SDK 3.3 or higher
+- Flutter SDK 3.9.2 or higher
+- Dart SDK 3.9.2 or higher
 - Android Studio / VS Code
-- Supabase account (for authentication) - Free tier available
+- Firebase account (for authentication & cloud sync) - Free tier available
 
 ### Step 1: Extract the Package
 
@@ -126,25 +128,57 @@ cd smartstock
 flutter pub get
 ```
 
-### Step 3: Configure Supabase
+### Step 3: Configure Firebase
 
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Create a new project (free tier available)
-3. Go to **Settings > API**
-4. Copy the **Project URL** and **anon public** key
-5. Open `lib/config/supabase_config.dart`
-6. Replace the placeholder values:
+3. Enable **Authentication**:
+   - Go to **Authentication > Sign-in method**
+   - Enable **Email/Password** provider
+4. Enable **Firestore Database**:
+   - Go to **Firestore Database**
+   - Create database in **Production mode** or **Test mode**
+   - Set up security rules (see below)
+5. Add your app to Firebase:
+   - **Android**: Add Android app with package name `com.devisb.stock_management`
+   - Download `google-services.json` and place it in `android/app/`
+   - **iOS**: Add iOS app with bundle ID
+   - Download `GoogleService-Info.plist` and place it in `ios/Runner/`
 
-```dart
-static const String supabaseUrl = 'https://your-project.supabase.co';
-static const String supabaseAnonKey = 'your-anon-key-here';
+#### Option A: Using FlutterFire CLI (Recommended)
+
+```bash
+# Install FlutterFire CLI
+dart pub global activate flutterfire_cli
+
+# Configure Firebase
+flutterfire configure
 ```
 
-7. Enable Email Authentication in **Authentication > Providers > Email**
+#### Option B: Manual Configuration
 
-> 📖 See [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) for detailed instructions
+1. Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) from Firebase Console
+2. Place them in the correct directories:
+   - Android: `android/app/google-services.json`
+   - iOS: `ios/Runner/GoogleService-Info.plist`
 
-**Note:** The app works in offline mode without Supabase configuration.
+#### Firestore Security Rules
+
+Set up these security rules in Firebase Console > Firestore Database > Rules:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own data
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+**Note:** The app works in offline mode without Firebase configuration. Cloud sync is optional.
 
 ### Step 4: Run the App
 
@@ -225,6 +259,9 @@ lib/
 ├── main.dart              # App entry point
 ├── app.dart               # App configuration
 ├── routes.dart            # Navigation routes
+├── firebase_options.dart  # Firebase configuration
+├── config/                # Configuration files
+│   └── firebase_config.dart
 ├── l10n/                  # Localization files
 │   ├── app_localizations.dart
 │   ├── app_en.dart        # English translations
@@ -233,20 +270,26 @@ lib/
 │   ├── product.dart
 │   ├── category.dart
 │   ├── brand.dart
-│   └── ...
+│   ├── stock_history.dart
+│   └── price_history.dart
 ├── providers/             # State management
 │   ├── product_provider.dart
 │   ├── category_provider.dart
+│   ├── brand_provider.dart
+│   ├── auth_provider.dart
 │   ├── settings_provider.dart
+│   ├── sync_provider.dart
 │   └── ...
 ├── screens/               # UI screens
 │   ├── dashboard_screen.dart
-│   ├── products/
 │   ├── login_screen.dart
+│   ├── settings_screen.dart
+│   ├── products/
 │   └── ...
 ├── services/              # Business logic
 │   ├── db_helper.dart
-│   └── export_service.dart
+│   ├── export_service.dart
+│   └── sync_service.dart  # Firebase sync
 ├── utils/                 # Utilities
 │   ├── constants.dart
 │   └── app_icons.dart
@@ -262,11 +305,11 @@ lib/
 
 | Technology | Purpose |
 |------------|---------|
-| Flutter 3.19+ | Cross-platform framework |
+| Flutter 3.9.2+ | Cross-platform framework |
 | Provider | State management |
 | SQLite (sqflite) | Local database |
-| Supabase Auth | Authentication |
-| Supabase | Cloud backup (optional) |
+| Firebase Auth | Authentication |
+| Firebase Firestore | Cloud backup & sync (optional) |
 | mobile_scanner | Barcode scanning |
 | pdf & printing | PDF generation |
 | excel | Excel export |
@@ -281,7 +324,9 @@ lib/
 - ✅ Category & brand management
 - ✅ Stock tracking with history
 - ✅ Barcode/QR scanner
-- ✅ Supabase authentication
+- ✅ Firebase authentication
+- ✅ Firebase Firestore cloud sync
+- ✅ **User-specific data isolation** - Each account's data is completely separate
 - ✅ PDF & Excel export
 - ✅ Database backup & restore
 - ✅ Dark/Light theme
@@ -293,7 +338,7 @@ lib/
 ## 🆘 Support
 
 ### Documentation
-- [Supabase Setup Guide](docs/SUPABASE_SETUP.md)
+- [Firebase Setup Guide](https://firebase.google.com/docs/flutter/setup)
 - [Customization Guide](docs/CUSTOMIZATION.md)
 - [FAQ](docs/FAQ.md)
 
@@ -328,7 +373,7 @@ See [LICENSE](LICENSE) for full details.
 ## 🙏 Credits
 
 - [Flutter](https://flutter.dev) - Google's UI toolkit
-- [Supabase](https://supabase.com) - Backend services
+- [Firebase](https://firebase.google.com) - Backend services & authentication
 - [Material Design 3](https://m3.material.io) - Design system
 - Icons by [Font Awesome](https://fontawesome.com)
 
