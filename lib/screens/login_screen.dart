@@ -850,16 +850,20 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildToggleButton(BuildContext context, bool isDark) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final textStyle = TextStyle(
+      color: isDark ? Colors.grey[400] : Colors.grey[600],
+      fontWeight: FontWeight.w500,
+      fontSize: 15,
+    );
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
-          _isLogin ? '' : '',
-          style: TextStyle(
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-          ),
+          _isLogin
+              ? context.tr('no_account_prompt')
+              : context.tr('have_account_prompt'),
+          style: textStyle,
         ),
         TextButton(
           onPressed: () {
@@ -868,11 +872,17 @@ class _LoginScreenState extends State<LoginScreen>
             });
           },
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Text(
             _isLogin ? context.tr('register') : context.tr('login'),
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
       ],

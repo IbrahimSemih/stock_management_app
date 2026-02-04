@@ -22,6 +22,8 @@ const Map<String, String> appEn = {
   'logout_confirm': 'Are you sure you want to logout?',
   'not_logged_in': 'Not logged in',
   'or': 'or',
+  'no_account_prompt': "Don't have an account?",
+  'have_account_prompt': 'Already have an account?',
 
   // Dashboard
   'dashboard': 'Dashboard',

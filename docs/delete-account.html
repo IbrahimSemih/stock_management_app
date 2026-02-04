@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartStock / Akıllı Stok - Hesap ve veri silme talebi">
+    <title>Hesap ve Veri Silme - SmartStock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --primary-dark: #1E40AF;
+            --secondary-color: #7C3AED;
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --bg-primary: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            font-size: 16px;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 48px 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; }
+        .header .subtitle { font-size: 1rem; opacity: 0.9; }
+        .container { max-width: 700px; margin: -24px auto 48px; padding: 0 20px; }
+        .content-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+        .section { margin-bottom: 32px; }
+        .section:last-child { margin-bottom: 0; }
+        h2 {
+            color: var(--primary-dark);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        p { color: var(--text-secondary); margin-bottom: 12px; }
+        .steps { list-style: none; counter-reset: step; }
+        .steps li {
+            counter-increment: step;
+            margin-bottom: 16px;
+            padding-left: 36px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            width: 26px;
+            height: 26px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.875rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .contact-box {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border-radius: 12px;
+            padding: 24px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .contact-box p { margin-bottom: 8px; }
+        .contact-box a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .contact-box a:hover { text-decoration: underline; }
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        .footer a { color: var(--primary-color); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Hesap ve Veri Silme</h1>
+        <p class="subtitle">SmartStock / Akıllı Stok</p>
+    </header>
+
+    <main class="container">
+        <div class="content-card">
+            <p style="margin-bottom: 24px; color: var(--text-secondary); font-size: 0.95rem;">
+                Bu sayfa, <strong>hesabınızın</strong> ve <strong>verilerinizin silinmesini</strong> talep etmek için kullanılır. Hesap silindiğinde ilişkili tüm veriler de kalıcı olarak silinir.
+            </p>
+            <section class="section">
+                <h2>Uygulama içinden hesabınızı ve verilerinizi silme</h2>
+                <p>Hesabınızı ve ilişkili tüm verilerinizi kendiniz silebilirsiniz:</p>
+                <ol class="steps">
+                    <li>Uygulamada <strong>Profil</strong> sekmesine gidin</li>
+                    <li><strong>Hesabı Sil</strong> bölümüne tıklayın</li>
+                    <li>Onay için şifrenizi girin ve silme işlemini onaylayın</li>
+                </ol>
+                <p>Bu işlem hesabınızı, Firebase’teki verilerinizi ve uygulama ile ilişkili verileri kalıcı olarak siler.</p>
+            </section>
+
+            <section class="section">
+                <h2>Veri silme talebi (uygulama dışından)</h2>
+                <p>Uygulamayı sildiyseniz veya hesap / veri silme ekranına erişemiyorsanız, <strong>verilerinizin silinmesini</strong> talep etmek için bizimle iletişime geçin:</p>
+                <div class="contact-box">
+                    <p><strong>E-posta:</strong> <a href="mailto:devisb35@zohomail.eu">devisb35@zohomail.eu</a></p>
+                    <p>E-postada kullandığınız kayıtlı e-posta adresini belirtin. Talebiniz en kısa sürede işleme alınacak ve hesabınız ile ilişkili veriler silinecektir.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Silinen veriler</h2>
+                <p>Hesap silme işlemiyle birlikte aşağıdakiler kalıcı olarak silinir:</p>
+                <ul style="margin-left: 20px; color: var(--text-secondary);">
+                    <li>Hesap bilgileriniz (e-posta, kimlik doğrulama verileri)</li>
+                    <li>Bulutta saklanan ürün, kategori, marka ve stok verileriniz</li>
+                    <li>Uygulama ile ilişkili diğer kullanıcı verileri</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© <span id="year"></span> SmartStock. <a href="privacy-policy.html">Gizlilik Politikası</a></p>
+    </footer>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

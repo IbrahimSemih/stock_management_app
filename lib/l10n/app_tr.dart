@@ -22,6 +22,8 @@ const Map<String, String> appTr = {
   'logout_confirm': 'Çıkış yapmak istediğinize emin misiniz?',
   'not_logged_in': 'Giriş yapılmadı',
   'or': 'veya',
+  'no_account_prompt': 'Hesabınız yok mu?',
+  'have_account_prompt': 'Zaten hesabınız var mı?',
 
   // Dashboard
   'dashboard': 'Ana Sayfa',
